@@ -26,11 +26,26 @@ Deploys Next.js to Vercel.
 ### NLP Service (Railway)
 Deployed as a separate Railway service via docker-compose or `./scripts/deploy-nlp.sh`.
 
+## Database Migrations
+
+Schema is initialized by `init.sql` on first run. For subsequent schema changes, use TypeORM migrations:
+
+```bash
+# Generate a migration from entity changes
+pnpm --filter backend migration:generate src/database/migrations/MyMigration
+
+# Migrations run automatically on app startup (migrationsRun: true)
+# Or run manually:
+pnpm --filter backend migration:run
+```
+
+**Important:** `synchronize` is disabled in all environments. Never enable it — use migrations instead.
+
 ## Environment Variables
 See `.env.example` for all required variables. Never hardcode secrets.
 
 ## URLs (after deployment)
 - Frontend: https://trendseismograph.vercel.app
 - Backend API: https://trendseismograph-backend.up.railway.app
-- Swagger: https://trendseismograph-backend.up.railway.app/api/docs
+- Swagger: disabled in production (available at `/api/docs` in development only)
 - NLP Service: internal only (not public)

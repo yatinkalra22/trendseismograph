@@ -19,7 +19,9 @@ import { HealthController } from './health.controller';
       type: 'postgres',
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
-      synchronize: process.env.NODE_ENV !== 'production',
+      synchronize: false,
+      migrationsRun: true,
+      migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
     }),
     RedisModule.forRoot({
       type: 'single',
