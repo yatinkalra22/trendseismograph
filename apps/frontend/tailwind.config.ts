@@ -18,7 +18,8 @@ const config: Config = {
         'text-secondary': '#888888',
       },
       fontFamily: {
-        mono: ['JetBrains Mono', 'monospace'],
+        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-mono)', 'JetBrains Mono', 'monospace'],
       },
     },
   },
