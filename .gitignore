@@ -34,8 +34,8 @@ venv/
 # HuggingFace cache
 .cache/
 
-# Docs (local planning only, not committed)
-docs/
+# Internal plan (not committed)
+docs/PLAN.md
 
 # OS
 Thumbs.db
