@@ -27,8 +27,8 @@ Python NLP Service (FastAPI) :8000 (internal only, not host-exposed)
 ```
 
 ## Database: PostgreSQL + Redis
-- PostgreSQL: structured trend data, time-series scores, back-test results
-- Redis: caching (TTL-based) + Bull job queue management
+- PostgreSQL: structured trend data, time-series scores, back-test results (password required)
+- Redis: caching (TTL-based) + Bull job queue management (password required)
 
 ## Key Tables
 - `trends` - tracked trends with metadata
