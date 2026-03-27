@@ -61,8 +61,6 @@ trendseismograph/
 
 ## Documentation
 
-Detailed docs are in `docs/` (gitignored, local planning):
-
 - [Architecture](docs/ARCHITECTURE.md) - System design, DB schema, queue pipeline
 - [API Reference](docs/API.md) - All REST endpoints
 - [Deployment](docs/DEPLOYMENT.md) - Deploy scripts and production setup
@@ -77,6 +75,8 @@ All operations are automated — no manual steps required:
 | `./scripts/seed.sh` | Seed 50+ historical trends |
 | `./scripts/deploy-backend.sh` | Deploy backend to Railway |
 | `./scripts/deploy-frontend.sh` | Deploy frontend to Vercel |
+| `./scripts/deploy-nlp.sh` | Deploy NLP service to Railway |
+| `./scripts/dev.sh` | Start Postgres + Redis for local dev |
 | `pnpm dev` | Start frontend + backend in dev mode |
 | `docker-compose up --build` | Start full stack with Docker |
 
