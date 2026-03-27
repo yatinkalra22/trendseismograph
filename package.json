@@ -1,0 +1,23 @@
+{
+  "name": "trendseismograph",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cultural tipping point detection engine",
+  "scripts": {
+    "dev": "pnpm --parallel -r run dev",
+    "dev:backend": "pnpm --filter @trendseismograph/backend run start:dev",
+    "dev:frontend": "pnpm --filter @trendseismograph/frontend run dev",
+    "build": "pnpm -r run build",
+    "build:backend": "pnpm --filter @trendseismograph/backend run build",
+    "build:frontend": "pnpm --filter @trendseismograph/frontend run build",
+    "docker:up": "docker-compose up --build",
+    "docker:down": "docker-compose down",
+    "docker:reset": "docker-compose down -v && docker-compose up --build",
+    "seed": "docker-compose exec backend pnpm seed",
+    "lint": "pnpm -r run lint"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}
