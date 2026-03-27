@@ -17,13 +17,16 @@ export interface NlpClassifyResponse {
 export class NlpService {
   private readonly logger = new Logger(NlpService.name);
   private readonly baseUrl = process.env.NLP_SERVICE_URL ?? 'http://localhost:8000';
+  private readonly serviceHeaders = {
+    'X-Service-Key': process.env.NLP_SERVICE_SECRET ?? '',
+  };
 
   async classifyDiscourse(req: NlpClassifyRequest): Promise<NlpClassifyResponse> {
     try {
       const { data } = await axios.post<NlpClassifyResponse>(
         `${this.baseUrl}/classify`,
         req,
-        { timeout: 30_000 },
+        { timeout: 30_000, headers: this.serviceHeaders },
       );
       return data;
     } catch (error) {
@@ -33,17 +36,17 @@ export class NlpService {
   }
 
   async fetchRedditData(slug: string): Promise<any> {
-    const { data } = await axios.get(`${this.baseUrl}/reddit/${slug}`, { timeout: 15_000 });
+    const { data } = await axios.get(`${this.baseUrl}/reddit/${slug}`, { timeout: 15_000, headers: this.serviceHeaders });
     return data;
   }
 
   async fetchGoogleTrends(slug: string): Promise<any> {
-    const { data } = await axios.get(`${this.baseUrl}/trends/${slug}`, { timeout: 20_000 });
+    const { data } = await axios.get(`${this.baseUrl}/trends/${slug}`, { timeout: 20_000, headers: this.serviceHeaders });
     return data;
   }
 
   async fetchWikipedia(slug: string): Promise<any> {
-    const { data } = await axios.get(`${this.baseUrl}/wikipedia/${slug}`, { timeout: 10_000 });
+    const { data } = await axios.get(`${this.baseUrl}/wikipedia/${slug}`, { timeout: 10_000, headers: this.serviceHeaders });
     return data;
   }
 

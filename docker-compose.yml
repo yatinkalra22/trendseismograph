@@ -35,12 +35,13 @@ services:
     build:
       context: ./services/nlp
       dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     environment:
       - REDDIT_CLIENT_ID=${REDDIT_CLIENT_ID}
       - REDDIT_CLIENT_SECRET=${REDDIT_CLIENT_SECRET}
       - REDDIT_USER_AGENT=${REDDIT_USER_AGENT}
+      - NLP_SERVICE_SECRET=${NLP_SERVICE_SECRET:-nlp-dev-secret}
     volumes:
       - huggingface_cache:/root/.cache/huggingface
     healthcheck:
@@ -60,6 +61,7 @@ services:
       - .env
     environment:
       - NLP_SERVICE_URL=http://nlp-service:8000
+      - NLP_SERVICE_SECRET=${NLP_SERVICE_SECRET:-nlp-dev-secret}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-trendseismograph}
       - REDIS_URL=redis://redis:6379
     depends_on:

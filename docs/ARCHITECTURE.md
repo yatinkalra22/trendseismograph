@@ -17,8 +17,8 @@ API Gateway (NestJS on Railway) :3001
   |-- PostgreSQL (primary store)
   |-- Redis (cache + Bull queues)
   |
-  v (HTTP internal)
-Python NLP Service (FastAPI) :8000
+  v (HTTP internal, X-Service-Key auth)
+Python NLP Service (FastAPI) :8000 (internal only, not host-exposed)
   |-- facebook/bart-large-mnli (discourse classification)
   |-- distilbert-sentiment (sentiment analysis)
   |-- pytrends (Google Trends)
@@ -47,6 +47,8 @@ Python NLP Service (FastAPI) :8000
 - **Rate limiting** via `@nestjs/throttler`: 100 req/min global, 10 req/min on alert creation
 - **Input validation** via `class-validator` DTOs with whitelisting
 - **Ownership checks** on alert deletion (email must match)
+- **Service-to-service auth** via `X-Service-Key` header between backend and NLP service
+- **NLP service** not exposed to host network (Docker internal only)
 - **CORS** restricted to `FRONTEND_URL`
 
 ## TPS Formula
