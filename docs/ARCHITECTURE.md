@@ -42,6 +42,13 @@ Python NLP Service (FastAPI) :8000
 2. `nlp-scoring` -> classify + compute TPS
 3. `alerts-check` -> trigger email alerts
 
+## Security Model
+- **API Key auth** (`Authorization: Bearer <key>`) protects all write/delete endpoints (trends, scores, alerts)
+- **Rate limiting** via `@nestjs/throttler`: 100 req/min global, 10 req/min on alert creation
+- **Input validation** via `class-validator` DTOs with whitelisting
+- **Ownership checks** on alert deletion (email must match)
+- **CORS** restricted to `FRONTEND_URL`
+
 ## TPS Formula
 ```
 TPS = (google_velocity * 0.30 + reddit_composite * 0.25 + stage_momentum * 0.25 + cross_platform * 0.20) * 10

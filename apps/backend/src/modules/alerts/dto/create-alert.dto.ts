@@ -1,5 +1,13 @@
-import { IsString, IsOptional, IsNumber, IsEmail } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsEmail, IsIn } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+
+export const DISCOURSE_STAGES = [
+  'discovery',
+  'early_adoption',
+  'tipping_point',
+  'mainstream',
+  'saturation',
+] as const;
 
 export class CreateAlertDto {
   @ApiProperty({ example: 'user@example.com' })
@@ -10,8 +18,8 @@ export class CreateAlertDto {
   @IsString()
   slug: string;
 
-  @ApiProperty({ example: 'tipping_point', required: false })
-  @IsString()
+  @ApiProperty({ example: 'tipping_point', required: false, enum: DISCOURSE_STAGES })
+  @IsIn(DISCOURSE_STAGES)
   @IsOptional()
   triggerStage?: string;
 

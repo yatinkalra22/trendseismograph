@@ -34,8 +34,9 @@ venv/
 # HuggingFace cache
 .cache/
 
-# Internal plan (not committed)
+# Internal docs (not committed)
 docs/PLAN.md
+docs/SECURITY_AUDIT.md
 
 # OS
 Thumbs.db

@@ -32,9 +32,12 @@ export class AlertsService {
     });
   }
 
-  async remove(id: string) {
+  async remove(id: string, email?: string) {
     const alert = await this.alertRepo.findOne({ where: { id } });
     if (!alert) throw new NotFoundException('Alert not found');
+    if (email && alert.userEmail !== email) {
+      throw new NotFoundException('Alert not found');
+    }
     await this.alertRepo.remove(alert);
     return { message: 'Alert deleted' };
   }

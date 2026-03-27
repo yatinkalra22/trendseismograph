@@ -37,8 +37,8 @@ Base URL: `http://localhost:3001` (dev) or deployed URL
 ## Alerts
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| POST | /api/alerts | No | Create alert |
-| DELETE | /api/alerts/:id | No | Delete alert |
+| POST | /api/alerts | No (rate-limited: 10/min) | Create alert. `triggerStage` must be a valid discourse stage. |
+| DELETE | /api/alerts/:id?email=:email | API Key | Delete alert. Email query param used for ownership verification. |
 | GET | /api/alerts?email=:email | No | List user alerts |
 
 ## Health
