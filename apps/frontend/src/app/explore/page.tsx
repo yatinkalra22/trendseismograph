@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Search, Bell, CheckCircle2, Loader2 } from 'lucide-react';
@@ -10,6 +10,14 @@ import { createAlert } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 export default function ExplorePage() {
+  return (
+    <Suspense fallback={<div className="max-w-7xl mx-auto px-4 py-10 text-text-secondary">Loading...</div>}>
+      <ExploreContent />
+    </Suspense>
+  );
+}
+
+function ExploreContent() {
   const searchParams = useSearchParams();
   const alertSlug = searchParams.get('alert') ?? '';
 
