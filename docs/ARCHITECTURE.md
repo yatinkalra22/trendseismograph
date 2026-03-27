@@ -43,6 +43,7 @@ Python NLP Service (FastAPI) :8000 (internal only, not host-exposed)
 3. `alerts-check` -> trigger email alerts
 
 ## Security Model
+- **Helmet** sets security headers (X-Content-Type-Options, Strict-Transport-Security, X-Frame-Options, etc.)
 - **API Key auth** (`Authorization: Bearer <key>`) protects all write/delete endpoints (trends, scores, alerts)
 - **Rate limiting** via `@nestjs/throttler`: 100 req/min global, 10 req/min on alert creation
 - **Input validation** via `class-validator` DTOs with whitelisting

@@ -51,4 +51,4 @@ Base URL: `http://localhost:3001` (dev) or deployed URL
 API Key required for write operations. Pass as `Authorization: Bearer <API_KEY>`.
 
 ## Interactive Docs
-Swagger UI available at `/api/docs` when backend is running.
+Swagger UI available at `/api/docs` in development only (disabled when `NODE_ENV=production`).

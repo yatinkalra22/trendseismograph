@@ -12,7 +12,7 @@ TrendSeismograph analyzes *how people talk about a trend* — not just how many 
 - **Multi-Signal Ingestion:** Automated 6-hour data pipeline from Google Trends, Reddit, Wikipedia
 - **Real-Time Leaderboard:** Ranked trends with velocity indicators
 - **Email Alerts:** Get notified when trends cross score thresholds
-- **Developer REST API:** Public API with Swagger docs at `/api/docs`
+- **Developer REST API:** Public API with Swagger docs at `/api/docs` (development only)
 
 ## Tech Stack
 
