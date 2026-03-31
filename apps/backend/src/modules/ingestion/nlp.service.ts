@@ -13,6 +13,36 @@ export interface NlpClassifyResponse {
   labeled_posts: Array<{ title: string; label: string; confidence: number }>;
 }
 
+export interface RedditPost {
+  title: string;
+  body: string;
+  score: number;
+  num_comments: number;
+  subreddit: string;
+  created_utc: number;
+}
+
+export interface RedditDataResponse {
+  posts: RedditPost[];
+  post_count: number;
+  comment_density: number;
+  growth_rate: number;
+  error?: string;
+  days_in_stage?: number;
+}
+
+export interface GoogleTrendsResponse {
+  current_value: number;
+  velocity: number;
+  history: number[];
+}
+
+export interface WikipediaResponse {
+  pageviews: number;
+  growth_rate: number;
+  error?: string;
+}
+
 @Injectable()
 export class NlpService {
   private readonly logger = new Logger(NlpService.name);
@@ -29,24 +59,25 @@ export class NlpService {
         { timeout: 30_000, headers: this.serviceHeaders },
       );
       return data;
-    } catch (error) {
-      this.logger.error(`NLP classify failed for ${req.trend_slug}: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'unknown error';
+      this.logger.error(`NLP classify failed for ${req.trend_slug}: ${message}`);
       throw error;
     }
   }
 
-  async fetchRedditData(slug: string): Promise<any> {
-    const { data } = await axios.get(`${this.baseUrl}/reddit/${slug}`, { timeout: 15_000, headers: this.serviceHeaders });
+  async fetchRedditData(slug: string): Promise<RedditDataResponse> {
+    const { data } = await axios.get<RedditDataResponse>(`${this.baseUrl}/reddit/${slug}`, { timeout: 15_000, headers: this.serviceHeaders });
     return data;
   }
 
-  async fetchGoogleTrends(slug: string): Promise<any> {
-    const { data } = await axios.get(`${this.baseUrl}/trends/${slug}`, { timeout: 20_000, headers: this.serviceHeaders });
+  async fetchGoogleTrends(slug: string): Promise<GoogleTrendsResponse> {
+    const { data } = await axios.get<GoogleTrendsResponse>(`${this.baseUrl}/trends/${slug}`, { timeout: 20_000, headers: this.serviceHeaders });
     return data;
   }
 
-  async fetchWikipedia(slug: string): Promise<any> {
-    const { data } = await axios.get(`${this.baseUrl}/wikipedia/${slug}`, { timeout: 10_000, headers: this.serviceHeaders });
+  async fetchWikipedia(slug: string): Promise<WikipediaResponse> {
+    const { data } = await axios.get<WikipediaResponse>(`${this.baseUrl}/wikipedia/${slug}`, { timeout: 10_000, headers: this.serviceHeaders });
     return data;
   }
 

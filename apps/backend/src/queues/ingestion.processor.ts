@@ -19,7 +19,7 @@ export class IngestionProcessor {
   ) {}
 
   @Process('ingest-all')
-  async handleIngestAll(job: Job) {
+  async handleIngestAll(_job: Job) {
     this.logger.log('Starting ingestion for all tracked trends');
     const trends = await this.trendRepo.find();
 
@@ -40,8 +40,9 @@ export class IngestionProcessor {
         });
 
         await new Promise((r) => setTimeout(r, 2000));
-      } catch (err) {
-        this.logger.error(`Ingestion failed for ${trend.slug}: ${err.message}`);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'unknown error';
+        this.logger.error(`Ingestion failed for ${trend.slug}: ${message}`);
       }
     }
   }

@@ -2,7 +2,12 @@ import { Process, Processor } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { ScoringService } from '../modules/scoring/scoring.service';
-import { NlpService } from '../modules/ingestion/nlp.service';
+import {
+  GoogleTrendsResponse,
+  NlpService,
+  RedditDataResponse,
+  WikipediaResponse,
+} from '../modules/ingestion/nlp.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TrendScore } from '../modules/trends/entities/trend-score.entity';
@@ -25,7 +30,13 @@ export class ScoringProcessor {
 
   @Process('score-trend')
   async handleScoreTrend(
-    job: Job<{ trendId: string; slug: string; redditData: any; googleData: any; wikiData: any }>,
+    job: Job<{
+      trendId: string;
+      slug: string;
+      redditData: RedditDataResponse;
+      googleData: GoogleTrendsResponse;
+      wikiData: WikipediaResponse;
+    }>,
   ) {
     const { trendId, slug, redditData, googleData, wikiData } = job.data;
     this.logger.log(`Scoring trend: ${slug}`);
@@ -75,7 +86,11 @@ export class ScoringProcessor {
     });
   }
 
-  private computeCrossPlatform(googleData: any, redditData: any, wikiData: any): number {
+  private computeCrossPlatform(
+    googleData: GoogleTrendsResponse,
+    redditData: RedditDataResponse,
+    wikiData: WikipediaResponse,
+  ): number {
     let spiking = 0;
     if ((googleData.velocity || 0) > 20) spiking++;
     if ((redditData.growth_rate || 0) > 30) spiking++;

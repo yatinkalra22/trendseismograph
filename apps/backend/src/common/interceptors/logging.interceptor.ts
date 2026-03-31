@@ -5,7 +5,7 @@ import { Observable, tap } from 'rxjs';
 export class LoggingInterceptor implements NestInterceptor {
   private readonly logger = new Logger('HTTP');
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const req = context.switchToHttp().getRequest();
     const { method, url } = req;
     const start = Date.now();
@@ -16,7 +16,7 @@ export class LoggingInterceptor implements NestInterceptor {
           const res = context.switchToHttp().getResponse();
           this.logger.log(`${method} ${url} ${res.statusCode} ${Date.now() - start}ms`);
         },
-        error: (err) => {
+        error: (err: { status?: number }) => {
           const status = err.status || 500;
           this.logger.warn(`${method} ${url} ${status} ${Date.now() - start}ms`);
         },

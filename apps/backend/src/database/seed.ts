@@ -3,6 +3,38 @@ import { Trend } from '../modules/trends/entities/trend.entity';
 import { TrendScore } from '../modules/trends/entities/trend-score.entity';
 import { BacktestResult } from '../modules/backtest/entities/backtest-result.entity';
 
+type SeedTrend = {
+  slug: string;
+  name: string;
+  category: string;
+  isHistorical: boolean;
+  actualOutcome: 'mainstream' | 'fizzled' | 'pending';
+};
+
+type SeedScore = {
+  trendId: string;
+  tippingPointScore: number;
+  discourseStage: string;
+  stageConfidence: number;
+  googleTrendValue: number;
+  googleTrendVelocity: number;
+  redditPostCount: number;
+  redditCommentCount: number;
+  redditSentiment: number;
+  wikipediaPageviews: number;
+  crossPlatformScore: number;
+  scoredAt: Date;
+};
+
+type SeedBacktest = {
+  trendId: string;
+  predictedStage: string;
+  predictedScore: number;
+  actualOutcome: 'mainstream' | 'fizzled';
+  wasCorrect: boolean;
+  weeksBeforePeak: number | null;
+};
+
 const dataSource = new DataSource({
   type: 'postgres',
   url: process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/trendseismograph',
@@ -10,7 +42,7 @@ const dataSource = new DataSource({
   synchronize: false,
 });
 
-const SEED_TRENDS = [
+const SEED_TRENDS: SeedTrend[] = [
   // WENT MAINSTREAM
   { slug: 'pickleball', name: 'Pickleball', category: 'sports', isHistorical: true, actualOutcome: 'mainstream' },
   { slug: 'oat-milk', name: 'Oat Milk', category: 'food', isHistorical: true, actualOutcome: 'mainstream' },
@@ -66,9 +98,8 @@ const SEED_TRENDS = [
 ];
 
 // Generate realistic mock scores for seeded trends
-function generateMockScores(trendId: string, outcome: string): Partial<any>[] {
-  const scores: Partial<any>[] = [];
-  const stages = ['discovery', 'early_adoption', 'tipping_point', 'mainstream', 'saturation'];
+function generateMockScores(trendId: string, outcome: SeedTrend['actualOutcome']): SeedScore[] {
+  const scores: SeedScore[] = [];
   const days = 90;
 
   for (let i = 0; i < days; i += 3) {
@@ -121,7 +152,7 @@ function generateMockScores(trendId: string, outcome: string): Partial<any>[] {
   return scores;
 }
 
-function generateBacktestResult(trendId: string, outcome: string): Partial<any> | null {
+function generateBacktestResult(trendId: string, outcome: SeedTrend['actualOutcome']): SeedBacktest | null {
   if (outcome === 'pending') return null;
 
   const wasCorrect = Math.random() > 0.19; // ~81% accuracy
@@ -157,12 +188,12 @@ async function seed() {
 
     // Generate mock score history
     const scores = generateMockScores(trend.id, t.actualOutcome);
-    await scoreRepo.save(scores.map((s) => scoreRepo.create(s as any)));
+    await scoreRepo.save(scores.map((s) => scoreRepo.create(s as Partial<TrendScore>)));
 
     // Generate backtest result for historical trends
     const backtest = generateBacktestResult(trend.id, t.actualOutcome);
     if (backtest) {
-      await backtestRepo.save(backtestRepo.create(backtest as any));
+      await backtestRepo.save(backtestRepo.create(backtest as Partial<BacktestResult>));
     }
   }
 
