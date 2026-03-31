@@ -6,6 +6,43 @@ import Redis from 'ioredis';
 import { BacktestResult } from './entities/backtest-result.entity';
 import { getCachedJson, setCachedJson } from '../../common/cache/cache-json';
 
+type OutcomeValue = 'mainstream' | 'fizzled';
+
+type AccuracySummary = {
+  overallAccuracy: number;
+  overallAccuracyCI95: {
+    lower: number;
+    upper: number;
+  };
+  totalTrends: number;
+  evaluatedTrends: number;
+  correctPredictions: number;
+  avgWeeksBeforePeak: number;
+  categoryAccuracy: Array<{
+    category: string;
+    accuracy: number;
+    total: number;
+    correct: number;
+  }>;
+  outcomeMetrics: {
+    precision: number;
+    recall: number;
+    f1: number;
+    confusionMatrix: {
+      truePositive: number;
+      falsePositive: number;
+      falseNegative: number;
+      trueNegative: number;
+    };
+  };
+  weeksBeforePeakDistribution: {
+    min: number;
+    p50: number;
+    p90: number;
+    max: number;
+  };
+};
+
 @Injectable()
 export class BacktestService {
   private readonly logger = new Logger(BacktestService.name);
@@ -32,23 +69,30 @@ export class BacktestService {
 
   async getAccuracy() {
     const cacheKey = 'backtest:accuracy';
-    const cached = await getCachedJson(this.redis, cacheKey, this.logger);
+    const cached = await getCachedJson<AccuracySummary>(this.redis, cacheKey, this.logger);
     if (cached) return cached;
 
     const results = await this.backtestRepo.find({ relations: ['trend'] });
 
-    const total = results.length;
-    const correct = results.filter((r) => r.wasCorrect).length;
-    const accuracy = total > 0 ? correct / total : 0;
+    const evaluable = results.filter((r) => this.isEvaluableOutcome(r.actualOutcome));
+    const evaluatedWithJudgement = evaluable.filter((r) => typeof r.wasCorrect === 'boolean');
+    const mainstream = evaluable.filter((r) => r.actualOutcome === 'mainstream');
+    const mainstreamWithWeeks = mainstream.filter(
+      (r) => typeof r.weeksBeforePeak === 'number' && Number.isFinite(r.weeksBeforePeak),
+    );
 
-    const mainstream = results.filter((r) => r.actualOutcome === 'mainstream');
+    const total = results.length;
+    const evaluatedCount = evaluatedWithJudgement.length;
+    const correct = evaluatedWithJudgement.filter((r) => r.wasCorrect).length;
+    const accuracy = evaluatedCount > 0 ? correct / evaluatedCount : 0;
+
     const avgWeeksBeforePeak =
-      mainstream.length > 0
-        ? mainstream.reduce((sum, r) => sum + (r.weeksBeforePeak || 0), 0) / mainstream.length
+      mainstreamWithWeeks.length > 0
+        ? mainstreamWithWeeks.reduce((sum, r) => sum + Number(r.weeksBeforePeak), 0) / mainstreamWithWeeks.length
         : 0;
 
     const byCategory: Record<string, { total: number; correct: number }> = {};
-    results.forEach((r) => {
+    evaluatedWithJudgement.forEach((r) => {
       const cat = r.trend?.category || 'unknown';
       if (!byCategory[cat]) byCategory[cat] = { total: 0, correct: 0 };
       byCategory[cat].total++;
@@ -62,17 +106,18 @@ export class BacktestService {
       correct: data.correct,
     }));
 
-    const ci = this.computeWilson95(correct, total);
-    const outcomeMetrics = this.computeOutcomeMetrics(results);
-    const weeksDistribution = this.computeWeeksDistribution(mainstream);
+    const ci = this.computeWilson95(correct, evaluatedCount);
+    const outcomeMetrics = this.computeOutcomeMetrics(evaluable);
+    const weeksDistribution = this.computeWeeksDistribution(mainstreamWithWeeks);
 
-    const result = {
+    const result: AccuracySummary = {
       overallAccuracy: parseFloat(accuracy.toFixed(3)),
       overallAccuracyCI95: {
         lower: parseFloat(ci.lower.toFixed(3)),
         upper: parseFloat(ci.upper.toFixed(3)),
       },
       totalTrends: total,
+      evaluatedTrends: evaluatedCount,
       correctPredictions: correct,
       avgWeeksBeforePeak: parseFloat(avgWeeksBeforePeak.toFixed(1)),
       categoryAccuracy,
@@ -82,6 +127,10 @@ export class BacktestService {
 
     await setCachedJson(this.redis, cacheKey, 86400, result, this.logger);
     return result;
+  }
+
+  private isEvaluableOutcome(outcome: string | null | undefined): outcome is OutcomeValue {
+    return outcome === 'mainstream' || outcome === 'fizzled';
   }
 
   private computeWilson95(successes: number, total: number) {
