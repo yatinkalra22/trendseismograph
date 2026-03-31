@@ -52,12 +52,16 @@ export default function DashboardPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setViewMode('grid')}
+            aria-label="Switch to grid view"
+            aria-pressed={viewMode === 'grid'}
             className={cn('p-2 rounded-lg transition-colors', viewMode === 'grid' ? 'bg-surface text-tipping' : 'text-text-secondary hover:text-text-primary')}
           >
             <LayoutGrid className="w-4 h-4" />
           </button>
           <button
             onClick={() => setViewMode('table')}
+            aria-label="Switch to table view"
+            aria-pressed={viewMode === 'table'}
             className={cn('p-2 rounded-lg transition-colors', viewMode === 'table' ? 'bg-surface text-tipping' : 'text-text-secondary hover:text-text-primary')}
           >
             <List className="w-4 h-4" />

@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useCallback } from 'react';
+import { Suspense, useState, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Search, Bell, CheckCircle2, Loader2 } from 'lucide-react';
@@ -48,19 +48,26 @@ function ExploreContent() {
   const [alertScore, setAlertScore] = useState('7.0');
   const [alertSent, setAlertSent] = useState(false);
 
+  const parsedScore = useMemo(() => Number.parseFloat(alertScore), [alertScore]);
+  const isScoreInvalid = Number.isNaN(parsedScore) || parsedScore < 0 || parsedScore > 10;
+  const isAlertFormInvalid = !alertEmail.trim() || !alertTrend.trim() || isScoreInvalid;
+
   const handleAlert = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isScoreInvalid) {
+      return;
+    }
     try {
       await createAlertMutation.mutateAsync({
         email: alertEmail,
         slug: alertTrend,
-        triggerScore: parseFloat(alertScore),
+        triggerScore: parsedScore,
       });
       setAlertSent(true);
     } catch {
       // Error toast is handled globally by MutationCache in providers.
     }
-  }, [alertEmail, alertTrend, alertScore, createAlertMutation]);
+  }, [alertEmail, alertTrend, parsedScore, isScoreInvalid, createAlertMutation]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10" aria-busy={isLoading}>
@@ -91,7 +98,11 @@ function ExploreContent() {
       {query.length > 1 && (
         <div className="mb-10" aria-live="polite">
           <h2 className="text-sm font-semibold text-text-secondary mb-4">
-            {isLoading ? 'Searching...' : `${results?.length ?? 0} results for "${query}"`}
+            {isLoading
+              ? 'Searching...'
+              : isError
+                ? `Search failed for "${query}"`
+                : `${results?.length ?? 0} results for "${query}"`}
           </h2>
           {isError && (
             <QueryErrorState
@@ -165,7 +176,10 @@ function ExploreContent() {
                 type="email"
                 required
                 value={alertEmail}
-                onChange={(e) => setAlertEmail(e.target.value)}
+                onChange={(e) => {
+                  setAlertEmail(e.target.value);
+                  setAlertSent(false);
+                }}
                 placeholder="you@example.com"
                 className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-tipping/40 transition-colors"
               />
@@ -176,7 +190,10 @@ function ExploreContent() {
                 type="text"
                 required
                 value={alertTrend}
-                onChange={(e) => setAlertTrend(e.target.value)}
+                onChange={(e) => {
+                  setAlertTrend(e.target.value);
+                  setAlertSent(false);
+                }}
                 placeholder="pickleball"
                 className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-tipping/40 transition-colors"
               />
@@ -190,17 +207,23 @@ function ExploreContent() {
                 max="10"
                 step="0.5"
                 value={alertScore}
-                onChange={(e) => setAlertScore(e.target.value)}
+                onChange={(e) => {
+                  setAlertScore(e.target.value);
+                  setAlertSent(false);
+                }}
                 className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm text-text-primary font-mono focus:outline-none focus:border-tipping/40 transition-colors"
               />
+              {isScoreInvalid && (
+                <p className="mt-1 text-xs text-red-400">Score must be a number between 0 and 10.</p>
+              )}
             </div>
 
             <button
               type="submit"
-              disabled={createAlertMutation.isPending}
+              disabled={createAlertMutation.isPending || isAlertFormInvalid}
               className={cn(
                 'w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-colors',
-                createAlertMutation.isPending
+                createAlertMutation.isPending || isAlertFormInvalid
                   ? 'bg-tipping/50 text-background cursor-not-allowed'
                   : 'bg-tipping text-background hover:bg-tipping/90',
               )}
