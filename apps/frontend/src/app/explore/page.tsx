@@ -4,10 +4,10 @@ import { Suspense, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Search, Bell, CheckCircle2, Loader2 } from 'lucide-react';
-import { useSearch } from '@/hooks/useTrends';
+import { useCreateAlert, useSearch } from '@/hooks/useTrends';
 import { TrendCard } from '@/components/trends/TrendCard';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { createAlert, getApiErrorMessage } from '@/lib/api';
+import { QueryErrorState } from '@/components/ui/QueryErrorState';
 import { cn } from '@/lib/utils';
 
 export default function ExplorePage() {
@@ -39,33 +39,28 @@ function ExploreContent() {
   const alertSlug = searchParams.get('alert') ?? '';
 
   const [query, setQuery] = useState('');
-  const { data: results, isLoading } = useSearch(query);
+  const { data: results, isLoading, isError, error, refetch } = useSearch(query);
+  const createAlertMutation = useCreateAlert();
 
   // Alert form state
   const [alertEmail, setAlertEmail] = useState('');
   const [alertTrend, setAlertTrend] = useState(alertSlug);
   const [alertScore, setAlertScore] = useState('7.0');
   const [alertSent, setAlertSent] = useState(false);
-  const [alertError, setAlertError] = useState('');
-  const [alertLoading, setAlertLoading] = useState(false);
 
   const handleAlert = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    setAlertError('');
-    setAlertLoading(true);
     try {
-      await createAlert({
+      await createAlertMutation.mutateAsync({
         email: alertEmail,
         slug: alertTrend,
         triggerScore: parseFloat(alertScore),
       });
       setAlertSent(true);
-    } catch (err: unknown) {
-      setAlertError(getApiErrorMessage(err));
-    } finally {
-      setAlertLoading(false);
+    } catch {
+      // Error toast is handled globally by MutationCache in providers.
     }
-  }, [alertEmail, alertTrend, alertScore]);
+  }, [alertEmail, alertTrend, alertScore, createAlertMutation]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10" aria-busy={isLoading}>
@@ -98,6 +93,16 @@ function ExploreContent() {
           <h2 className="text-sm font-semibold text-text-secondary mb-4">
             {isLoading ? 'Searching...' : `${results?.length ?? 0} results for "${query}"`}
           </h2>
+          {isError && (
+            <QueryErrorState
+              error={error}
+              title="Unable to search trends"
+              onRetry={() => {
+                void refetch();
+              }}
+              className="mb-4"
+            />
+          )}
           {isLoading && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
@@ -105,7 +110,7 @@ function ExploreContent() {
               ))}
             </div>
           )}
-          {results && results.length > 0 && (
+          {results && results.length > 0 && !isError && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {results.map((t: any, i: number) => (
                 <motion.div
@@ -126,7 +131,7 @@ function ExploreContent() {
               ))}
             </div>
           )}
-          {results && results.length === 0 && !isLoading && (
+          {results && results.length === 0 && !isLoading && !isError && (
             <p className="text-text-secondary text-sm">No trends found matching your search.</p>
           )}
         </div>
@@ -190,19 +195,17 @@ function ExploreContent() {
               />
             </div>
 
-            {alertError && <p className="text-red-400 text-xs">{alertError}</p>}
-
             <button
               type="submit"
-              disabled={alertLoading}
+              disabled={createAlertMutation.isPending}
               className={cn(
                 'w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-colors',
-                alertLoading
+                createAlertMutation.isPending
                   ? 'bg-tipping/50 text-background cursor-not-allowed'
                   : 'bg-tipping text-background hover:bg-tipping/90',
               )}
             >
-              {alertLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bell className="w-4 h-4" />}
+              {createAlertMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bell className="w-4 h-4" />}
               Create Alert
             </button>
           </form>

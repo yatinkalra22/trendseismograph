@@ -1,16 +1,26 @@
 'use client';
 
 import { MutationCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getApiErrorMessage } from '@/lib/api';
 import { ErrorToastProvider, useErrorToast } from '@/components/ui/ErrorToastProvider';
 
 function QueryProviders({ children }: { children: React.ReactNode }) {
   const { showError } = useErrorToast();
+  const showErrorRef = useRef(showError);
+
+  useEffect(() => {
+    showErrorRef.current = showError;
+  }, [showError]);
 
   const [queryClient] = useState(
     () =>
       new QueryClient({
+        mutationCache: new MutationCache({
+          onError: (error) => {
+            showErrorRef.current(getApiErrorMessage(error));
+          },
+        }),
         defaultOptions: {
           queries: {
             staleTime: 1000 * 60 * 5,
@@ -20,15 +30,6 @@ function QueryProviders({ children }: { children: React.ReactNode }) {
         },
       }),
   );
-
-  // Update mutation error handler with fresh showError callback to avoid stale closure
-  useEffect(() => {
-    queryClient.setMutationDefaults(['mutation'], {
-      onError: (error) => {
-        showError(getApiErrorMessage(error));
-      },
-    });
-  }, [queryClient, showError]);
 
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }

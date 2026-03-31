@@ -1,7 +1,8 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import {
+  createAlert,
   fetchLeaderboard,
   fetchTrend,
   fetchTrendHistory,
@@ -39,3 +40,9 @@ export const useBacktestResults = () =>
 
 export const useSearch = (q: string) =>
   useQuery({ queryKey: ['search', q], queryFn: () => searchTrends(q), enabled: q.length > 1, staleTime: 1000 * 60 });
+
+export const useCreateAlert = () =>
+  useMutation({
+    mutationKey: ['create-alert'],
+    mutationFn: (data: { email: string; slug: string; triggerStage?: string; triggerScore?: number }) => createAlert(data),
+  });

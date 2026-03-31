@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { LayoutGrid, List, Flame } from 'lucide-react';
@@ -23,7 +22,6 @@ const STAGE_FILTERS = [
 ];
 
 export default function DashboardPage() {
-  const router = useRouter();
   const { data: leaderboard, isLoading, isError, error, refetch } = useLeaderboard();
   const { selectedStage, selectedCategory, viewMode, setStage, setCategory, setViewMode } = useAppStore();
 
@@ -209,11 +207,14 @@ export default function DashboardPage() {
               {filtered.map((t: any, i: number) => (
                 <tr
                   key={t.slug}
-                  className="border-b border-border hover:bg-surface-hover transition-colors cursor-pointer"
-                  onClick={() => router.push(`/trends/${t.slug}`)}
+                  className="border-b border-border hover:bg-surface-hover transition-colors"
                 >
                   <td className="px-4 py-3 text-text-secondary font-mono">{i + 1}</td>
-                  <td className="px-4 py-3 font-medium">{t.name}</td>
+                  <td className="px-4 py-3 font-medium">
+                    <Link href={`/trends/${t.slug}`} className="hover:text-tipping transition-colors">
+                      {t.name}
+                    </Link>
+                  </td>
                   <td className="px-4 py-3 text-text-secondary capitalize hidden sm:table-cell">{t.category}</td>
                   <td className="px-4 py-3 text-right font-mono font-bold text-tipping">{Number(t.tippingPointScore).toFixed(1)}</td>
                   <td className="px-4 py-3 hidden md:table-cell"><StageLabel stage={t.discourseStage} /></td>

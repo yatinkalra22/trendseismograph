@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
@@ -261,9 +262,9 @@ export default function BacktestPage() {
                 {filtered.map((r: any) => (
                   <tr key={r.id} className="border-b border-border hover:bg-surface-hover transition-colors">
                     <td className="px-4 py-3 font-medium">
-                      <a href={`/trends/${r.trend?.slug}`} className="hover:text-tipping transition-colors">
+                      <Link href={`/trends/${r.trend?.slug}`} className="hover:text-tipping transition-colors">
                         {r.trend?.name ?? 'Unknown'}
-                      </a>
+                      </Link>
                     </td>
                     <td className="px-4 py-3 text-text-secondary capitalize hidden sm:table-cell">{r.trend?.category}</td>
                     <td className="px-4 py-3 text-text-secondary capitalize">{r.predictedStage?.replace('_', ' ')}</td>
