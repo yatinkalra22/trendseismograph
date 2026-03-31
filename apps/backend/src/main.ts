@@ -4,15 +4,16 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
-import { ConfigService } from '@nestjs/config';
+import { ConfigType } from '@nestjs/config';
+import appConfig from './config/app.config';
 import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const config = app.get(ConfigService);
-  const frontendUrl = config.get<string>('FRONTEND_URL', 'http://localhost:3000');
-  const nodeEnv = config.get<string>('NODE_ENV', 'development');
-  const port = parseInt(config.get<string>('PORT', '3001'), 10);
+  const cfg = app.get<ConfigType<typeof appConfig>>(appConfig.KEY);
+  const frontendUrl = cfg.frontendUrl;
+  const nodeEnv = cfg.environment;
+  const port = cfg.port;
 
   app.use(helmet());
   app.enableCors({ origin: frontendUrl });

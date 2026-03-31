@@ -12,12 +12,17 @@ import { BacktestModule } from './modules/backtest/backtest.module';
 import { QueuesModule } from './queues/queues.module';
 import { HealthController } from './health.controller';
 import { validateEnv } from './config/env.validation';
+import appConfig from './config/app.config';
+import securityConfig from './config/security.config';
+import ingestionConfig from './modules/ingestion/ingestion.config';
+import alertsConfig from './modules/alerts/alerts.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
+      load: [appConfig, securityConfig, ingestionConfig, alertsConfig],
       validate: validateEnv,
     }),
     TypeOrmModule.forRootAsync({

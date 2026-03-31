@@ -1,18 +1,23 @@
 import { Process, Processor } from '@nestjs/bull';
-import { Logger } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { AlertsService } from '../modules/alerts/alerts.service';
 import { Resend } from 'resend';
+import alertsConfig from '../modules/alerts/alerts.config';
+import { ConfigType } from '@nestjs/config';
 
 @Processor('alerts')
 export class AlertsProcessor {
   private readonly logger = new Logger(AlertsProcessor.name);
-  private readonly resendApiKey = process.env.RESEND_API_KEY ?? '';
-  private readonly fromEmail = process.env.ALERT_FROM_EMAIL ?? 'alerts@trendseismograph.com';
-  private readonly frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
-  private readonly resend = this.resendApiKey ? new Resend(this.resendApiKey) : null;
+  private readonly resend: Resend | null;
 
-  constructor(private alertsService: AlertsService) {}
+  constructor(
+    private readonly alertsService: AlertsService,
+    @Inject(alertsConfig.KEY)
+    private readonly alertsCfg: ConfigType<typeof alertsConfig>,
+  ) {
+    this.resend = this.alertsCfg.resendApiKey ? new Resend(this.alertsCfg.resendApiKey) : null;
+  }
 
   @Process('check-alerts')
   async handleCheckAlerts(job: Job<{ trendId: string; tps: number; stage: string }>) {
@@ -31,11 +36,11 @@ export class AlertsProcessor {
       const trendName = alert.trend?.name ?? trendId;
       const trendSlug = alert.trend?.slug;
       const stageLabel = stage.replace(/_/g, ' ');
-      const trendLink = trendSlug ? `${this.frontendUrl}/trends/${trendSlug}` : this.frontendUrl;
+      const trendLink = trendSlug ? `${this.alertsCfg.frontendUrl}/trends/${trendSlug}` : this.alertsCfg.frontendUrl;
 
       try {
         await this.resend.emails.send({
-          from: this.fromEmail,
+          from: this.alertsCfg.fromEmail,
           to: alert.userEmail,
           subject: `${trendName} is now ${stageLabel} (TPS ${tps.toFixed(1)})`,
           html: [
@@ -48,8 +53,9 @@ export class AlertsProcessor {
 
         await this.alertsService.deactivateAlert(alert.id);
         this.logger.log(`Alert email sent to ${alert.userEmail} for trend ${trendName}`);
-      } catch (error) {
-        this.logger.error(`Failed to send alert email to ${alert.userEmail}: ${error.message}`);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'unknown error';
+        this.logger.error(`Failed to send alert email to ${alert.userEmail}: ${message}`);
       }
     }
   }

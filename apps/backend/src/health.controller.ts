@@ -1,14 +1,19 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Inject } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { ConfigService } from '@nestjs/config';
-import { NlpService } from './modules/ingestion/nlp.service';
+import { ConfigType } from '@nestjs/config';
+import appConfig from './config/app.config';
+import ingestionConfig from './modules/ingestion/ingestion.config';
+import { IngestionApplicationService } from './modules/ingestion/application/ingestion-application.service';
 
 @ApiTags('health')
 @Controller('health')
 export class HealthController {
   constructor(
-    private readonly config: ConfigService,
-    private readonly nlpService: NlpService,
+    @Inject(appConfig.KEY)
+    private readonly appCfg: ConfigType<typeof appConfig>,
+    @Inject(ingestionConfig.KEY)
+    private readonly ingestionCfg: ConfigType<typeof ingestionConfig>,
+    private readonly ingestionService: IngestionApplicationService,
   ) {}
 
   @Get()
@@ -16,17 +21,17 @@ export class HealthController {
     return {
       status: 'ok',
       service: 'trendseismograph-api',
-      environment: this.config.get<string>('NODE_ENV', 'development'),
+      environment: this.appCfg.environment,
       timestamp: new Date().toISOString(),
     };
   }
 
   @Get('nlp')
   async nlpHealth() {
-    const reachable = await this.nlpService.health();
+    const reachable = await this.ingestionService.health();
     return {
       status: reachable ? 'ok' : 'error',
-      nlpServiceUrl: this.config.get<string>('NLP_SERVICE_URL', 'http://localhost:8000'),
+      nlpServiceUrl: this.ingestionCfg.nlpServiceUrl,
       nlp: reachable ? 'reachable' : 'unreachable',
       timestamp: new Date().toISOString(),
     };

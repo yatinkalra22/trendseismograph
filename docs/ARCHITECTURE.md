@@ -34,8 +34,29 @@ Python NLP Service (FastAPI) :8000 (internal only, not host-exposed)
 - Centralized config bootstrap through `ConfigModule` with global cache enabled
 - Startup-time environment validation (`src/config/env.validation.ts`) for required variables
 - Async infrastructure wiring via `ConfigService` for TypeORM, Redis, and Bull
-- Runtime configuration access via dependency injection (instead of direct `process.env` reads)
+- Runtime configuration access via typed config objects (instead of direct `process.env` reads)
 - Fail-fast startup behavior when critical environment variables are missing
+
+Typed config modules:
+- `app` -> runtime environment, port, frontend origin
+- `security` -> API key and service auth secrets
+- `ingestion` -> NLP service URL + adapter timeouts
+- `alerts` -> email sender + frontend link origin
+
+## Error Architecture
+- Shared application-level error taxonomy in `common/errors/app-error.ts`
+- Domain errors and infrastructure errors are separated at the type level
+- Global HTTP filter maps taxonomy codes to stable HTTP statuses and response shape
+- Error responses include `code`, `category`, `path`, and `method` for observability
+
+## Module Boundaries
+- Ingestion module:
+  - Application layer: `application/ingestion-application.service.ts`
+  - Adapter layer: `adapters/nlp-client.adapter.ts`
+- Scoring module:
+  - Application layer: `application/scoring-application.service.ts`
+  - Domain scoring logic: `scoring.service.ts`
+- Queue processors now orchestrate through application services, not direct external adapters
 
 ## Key Tables
 - `trends` - tracked trends with metadata

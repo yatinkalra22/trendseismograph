@@ -1,7 +1,7 @@
 import { Process, Processor } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
-import { NlpService } from '../modules/ingestion/nlp.service';
+import { IngestionApplicationService } from '../modules/ingestion/application/ingestion-application.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Trend } from '../modules/trends/entities/trend.entity';
@@ -13,7 +13,7 @@ export class IngestionProcessor {
   private readonly logger = new Logger(IngestionProcessor.name);
 
   constructor(
-    private nlpService: NlpService,
+    private readonly ingestionService: IngestionApplicationService,
     @InjectRepository(Trend) private trendRepo: Repository<Trend>,
     @InjectQueue('nlp-scoring') private scoringQueue: Queue,
   ) {}
@@ -25,11 +25,7 @@ export class IngestionProcessor {
 
     for (const trend of trends) {
       try {
-        const [redditData, googleData, wikiData] = await Promise.all([
-          this.nlpService.fetchRedditData(trend.slug),
-          this.nlpService.fetchGoogleTrends(trend.slug),
-          this.nlpService.fetchWikipedia(trend.slug),
-        ]);
+        const { redditData, googleData, wikiData } = await this.ingestionService.gatherSignals(trend.slug);
 
         await this.scoringQueue.add('score-trend', {
           trendId: trend.id,
@@ -53,11 +49,7 @@ export class IngestionProcessor {
     const trend = await this.trendRepo.findOne({ where: { slug } });
     if (!trend) return;
 
-    const [redditData, googleData, wikiData] = await Promise.all([
-      this.nlpService.fetchRedditData(slug),
-      this.nlpService.fetchGoogleTrends(slug),
-      this.nlpService.fetchWikipedia(slug),
-    ]);
+    const { redditData, googleData, wikiData } = await this.ingestionService.gatherSignals(slug);
 
     await this.scoringQueue.add('score-trend', {
       trendId: trend.id,
