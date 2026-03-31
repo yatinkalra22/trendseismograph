@@ -81,7 +81,7 @@ function ExploreContent() {
     };
   }, [queryInput.length]);
 
-  const { data: results, isLoading, isError, error, refetch } = useSearch(debouncedQuery);
+  const { data: results, isLoading, isFetching, isError, error, refetch } = useSearch(debouncedQuery);
   const createAlertMutation = useCreateAlert();
 
   // Alert form state
@@ -144,9 +144,11 @@ function ExploreContent() {
           <h2 className="text-sm font-semibold text-text-secondary mb-4">
             {normalizedQueryInput !== debouncedQuery
               ? `Searching for "${normalizedQueryInput}"...`
+              : isFetching && !isLoading
+                ? `Updating results for "${debouncedQuery}"...`
               : isLoading
-              ? 'Searching...'
-              : isError
+                ? 'Searching...'
+                : isError
                 ? `Search failed for "${debouncedQuery}"`
                 : `${results?.length ?? 0} results for "${debouncedQuery}"`}
           </h2>

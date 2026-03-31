@@ -43,6 +43,7 @@ export const useSearch = (q: string) =>
     queryKey: ['search', q],
     queryFn: ({ signal }) => searchTrends(q, signal),
     enabled: q.trim().length > 1,
+    placeholderData: (previousData) => previousData,
     staleTime: 1000 * 60,
     retry: false,
   });
