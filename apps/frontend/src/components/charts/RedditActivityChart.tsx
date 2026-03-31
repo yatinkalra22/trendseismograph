@@ -5,7 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { format } from 'date-fns';
 
 interface DataPoint {
-  scoredAt: string;
+  scoredAt: string | Date;
   redditPostCount: number;
 }
 

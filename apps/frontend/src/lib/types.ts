@@ -1,4 +1,10 @@
-export type DiscourseStage = 'discovery' | 'early_adoption' | 'tipping_point' | 'mainstream';
+export type DiscourseStage =
+  | 'discovery'
+  | 'early_adoption'
+  | 'approaching_tipping'
+  | 'tipping_point'
+  | 'mainstream'
+  | 'saturation';
 
 export type BacktestOutcome = 'mainstream' | 'fizzled';
 
@@ -10,36 +16,53 @@ export interface TrendScore {
   redditPostCount?: number;
   wikipediaPageviews?: number;
   stageConfidence: number;
+  scoredAt?: string | Date;
 }
 
 export interface TrendSummary {
   slug: string;
   name: string;
-  category: string;
+  category: string | null;
   tippingPointScore: number;
   discourseStage: DiscourseStage;
   googleTrendVelocity: number;
+  stageConfidence?: number;
+  googleTrendValue?: number | null;
+  redditPostCount?: number | null;
+  wikipediaPageviews?: number | null;
+  scoredAt?: string;
 }
 
 export interface TrendSearchResult {
   slug: string;
   name: string;
-  category: string;
+  category: string | null;
 }
 
 export interface TrendDetail {
   slug: string;
   name: string;
-  category: string;
+  category: string | null;
+  description?: string | null;
   isHistorical?: boolean;
-  actualOutcome?: BacktestOutcome;
+  actualOutcome?: BacktestOutcome | string | null;
+  createdAt?: string | Date;
   latestScore: TrendScore | null;
 }
 
+export interface PaginatedTrendsResponse {
+  items: TrendDetail[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export interface TrendHistoryPoint {
-  scoredAt: string;
+  scoredAt: string | Date;
   tippingPointScore: number;
+  discourseStage: DiscourseStage;
   googleTrendValue: number;
+  googleTrendVelocity: number;
   redditPostCount: number;
   wikipediaPageviews: number;
 }
@@ -66,6 +89,7 @@ export interface BacktestAccuracy {
   avgWeeksBeforePeak: number;
   correctPredictions: number;
   totalTrends: number;
+  evaluatedTrends?: number;
   categoryAccuracy: BacktestCategoryAccuracy[];
   outcomeMetrics?: BacktestOutcomeMetrics;
   overallAccuracyCI95?: {
@@ -73,8 +97,10 @@ export interface BacktestAccuracy {
     upper: number;
   };
   weeksBeforePeakDistribution?: {
+    min?: number;
     p50: number;
     p90: number;
+    max?: number;
   };
 }
 
@@ -83,12 +109,12 @@ export interface BacktestResult {
   trend?: {
     slug: string;
     name: string;
-    category: string;
+    category: string | null;
   };
-  predictedStage?: string;
-  predictedScore: number;
-  actualOutcome: BacktestOutcome;
-  wasCorrect: boolean;
+  predictedStage?: string | null;
+  predictedScore: number | null;
+  actualOutcome: BacktestOutcome | string | null;
+  wasCorrect: boolean | null;
   weeksBeforePeak?: number;
 }
 

@@ -72,7 +72,8 @@ export default function TrendDetailPage() {
   }
 
   const score = trend.latestScore;
-  const icon = CATEGORY_ICONS[trend.category] ?? '';
+  const category = trend.category ?? 'unknown';
+  const icon = CATEGORY_ICONS[category] ?? '';
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10" aria-busy={isLoading || isHistoryLoading}>
@@ -92,7 +93,7 @@ export default function TrendDetailPage() {
           {score && <StageLabel stage={score.discourseStage} size="md" />}
         </div>
         <p className="text-text-secondary text-sm">
-          {icon} {trend.category} {trend.isHistorical && `\u00b7 Historical \u00b7 ${trend.actualOutcome}`}
+          {icon} {category} {trend.isHistorical && `\u00b7 Historical \u00b7 ${trend.actualOutcome}`}
         </p>
       </motion.div>
 

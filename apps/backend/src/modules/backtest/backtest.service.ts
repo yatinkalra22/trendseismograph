@@ -5,43 +5,9 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 import { BacktestResult } from './entities/backtest-result.entity';
 import { getCachedJson, setCachedJson } from '../../common/cache/cache-json';
+import { ApiBacktestAccuracy, ApiBacktestResult } from '../../common/contracts/api-contracts';
 
 type OutcomeValue = 'mainstream' | 'fizzled';
-
-type AccuracySummary = {
-  overallAccuracy: number;
-  overallAccuracyCI95: {
-    lower: number;
-    upper: number;
-  };
-  totalTrends: number;
-  evaluatedTrends: number;
-  correctPredictions: number;
-  avgWeeksBeforePeak: number;
-  categoryAccuracy: Array<{
-    category: string;
-    accuracy: number;
-    total: number;
-    correct: number;
-  }>;
-  outcomeMetrics: {
-    precision: number;
-    recall: number;
-    f1: number;
-    confusionMatrix: {
-      truePositive: number;
-      falsePositive: number;
-      falseNegative: number;
-      trueNegative: number;
-    };
-  };
-  weeksBeforePeakDistribution: {
-    min: number;
-    p50: number;
-    p90: number;
-    max: number;
-  };
-};
 
 @Injectable()
 export class BacktestService {
@@ -52,24 +18,52 @@ export class BacktestService {
     @InjectRedis() private redis: Redis,
   ) {}
 
-  async getResults() {
-    return this.backtestRepo.find({
+  async getResults(): Promise<ApiBacktestResult[]> {
+    const rows = await this.backtestRepo.find({
       relations: ['trend'],
       order: { runAt: 'DESC' },
     });
+
+    return rows.map((row) => ({
+      id: row.id,
+      trend: row.trend ? {
+        slug: row.trend.slug,
+        name: row.trend.name,
+        category: row.trend.category,
+      } : undefined,
+      predictedStage: row.predictedStage,
+      predictedScore: row.predictedScore == null ? null : Number(row.predictedScore),
+      actualOutcome: row.actualOutcome,
+      wasCorrect: row.wasCorrect,
+      weeksBeforePeak: row.weeksBeforePeak,
+    }));
   }
 
-  async getResultsBySlug(slug: string) {
-    return this.backtestRepo.find({
+  async getResultsBySlug(slug: string): Promise<ApiBacktestResult[]> {
+    const rows = await this.backtestRepo.find({
       where: { trend: { slug } },
       relations: ['trend'],
       order: { runAt: 'DESC' },
     });
+
+    return rows.map((row) => ({
+      id: row.id,
+      trend: row.trend ? {
+        slug: row.trend.slug,
+        name: row.trend.name,
+        category: row.trend.category,
+      } : undefined,
+      predictedStage: row.predictedStage,
+      predictedScore: row.predictedScore == null ? null : Number(row.predictedScore),
+      actualOutcome: row.actualOutcome,
+      wasCorrect: row.wasCorrect,
+      weeksBeforePeak: row.weeksBeforePeak,
+    }));
   }
 
-  async getAccuracy() {
+  async getAccuracy(): Promise<ApiBacktestAccuracy> {
     const cacheKey = 'backtest:accuracy';
-    const cached = await getCachedJson<AccuracySummary>(this.redis, cacheKey, this.logger);
+    const cached = await getCachedJson<ApiBacktestAccuracy>(this.redis, cacheKey, this.logger);
     if (cached) return cached;
 
     const results = await this.backtestRepo.find({ relations: ['trend'] });
@@ -110,7 +104,7 @@ export class BacktestService {
     const outcomeMetrics = this.computeOutcomeMetrics(evaluable);
     const weeksDistribution = this.computeWeeksDistribution(mainstreamWithWeeks);
 
-    const result: AccuracySummary = {
+    const result: ApiBacktestAccuracy = {
       overallAccuracy: parseFloat(accuracy.toFixed(3)),
       overallAccuracyCI95: {
         lower: parseFloat(ci.lower.toFixed(3)),

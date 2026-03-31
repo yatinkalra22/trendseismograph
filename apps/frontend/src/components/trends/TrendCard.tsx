@@ -9,7 +9,7 @@ interface Props {
   trend: {
     slug: string;
     name: string;
-    category: string;
+    category: string | null;
     latestScore?: {
       tippingPointScore: number;
       discourseStage: string;
@@ -24,7 +24,8 @@ export const TrendCard = memo(
     const stage = trend.latestScore?.discourseStage ?? 'discovery';
     const velocity = trend.latestScore?.googleTrendVelocity ?? 0;
     const velocitySign = velocity > 0 ? '+' : '';
-    const icon = CATEGORY_ICONS[trend.category] ?? '';
+    const category = trend.category ?? 'unknown';
+    const icon = CATEGORY_ICONS[category] ?? '';
 
     return (
       <Link href={`/trends/${trend.slug}`}>
@@ -35,7 +36,7 @@ export const TrendCard = memo(
                 {trend.name}
               </h3>
               <span className="text-xs text-text-secondary capitalize">
-                {icon} {trend.category}
+                {icon} {category}
               </span>
             </div>
             <div className="text-2xl font-mono font-bold text-tipping ml-3 shrink-0">

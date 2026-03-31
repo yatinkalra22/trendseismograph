@@ -5,7 +5,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { format } from 'date-fns';
 
 interface DataPoint {
-  scoredAt: string;
+  scoredAt: string | Date;
   googleTrendValue: number;
 }
 

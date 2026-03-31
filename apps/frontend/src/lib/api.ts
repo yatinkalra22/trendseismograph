@@ -3,6 +3,7 @@ import {
   BacktestAccuracy,
   BacktestResult,
   CreateAlertPayload,
+  PaginatedTrendsResponse,
   TrendDetail,
   TrendHistoryPoint,
   TrendSearchResult,
@@ -73,7 +74,7 @@ api.interceptors.response.use(
 
 // Trends
 export const fetchTrends = (params?: { stage?: string; category?: string; page?: number }) =>
-  api.get<TrendDetail[]>('/api/trends', { params }).then((r) => r.data);
+  api.get<PaginatedTrendsResponse>('/api/trends', { params }).then((r) => r.data);
 
 export const fetchTrend = (slug: string) =>
   api.get<TrendDetail>(`/api/trends/${slug}`).then((r) => r.data);

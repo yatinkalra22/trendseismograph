@@ -219,7 +219,7 @@ export default function DashboardPage() {
                       {t.name}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-text-secondary capitalize hidden sm:table-cell">{t.category}</td>
+                  <td className="px-4 py-3 text-text-secondary capitalize hidden sm:table-cell">{t.category ?? 'unknown'}</td>
                   <td className="px-4 py-3 text-right font-mono font-bold text-tipping">{Number(t.tippingPointScore).toFixed(1)}</td>
                   <td className="px-4 py-3 hidden md:table-cell"><StageLabel stage={t.discourseStage} /></td>
                   <td className={`px-4 py-3 text-right font-mono hidden lg:table-cell ${Number(t.googleTrendVelocity) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>

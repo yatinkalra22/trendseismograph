@@ -5,7 +5,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { format } from 'date-fns';
 
 interface DataPoint {
-  scoredAt: string;
+  scoredAt: string | Date;
   tippingPointScore: number;
 }
 

@@ -9,6 +9,7 @@ import { ApiKeyGuard } from '../auth/api-key.guard';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { getCachedJson, setCachedJson } from '../../common/cache/cache-json';
+import { ApiDiscourseStage, ApiTrendSummary } from '../../common/contracts/api-contracts';
 
 @ApiTags('scores')
 @Controller('api/scores')
@@ -22,8 +23,8 @@ export class ScoringController {
   ) {}
 
   @Get('leaderboard')
-  async getLeaderboard() {
-    const cached = await getCachedJson(this.redis, 'leaderboard:tps', this.logger);
+  async getLeaderboard(): Promise<ApiTrendSummary[]> {
+    const cached = await getCachedJson<ApiTrendSummary[]>(this.redis, 'leaderboard:tps', this.logger);
     if (cached) return cached;
 
     const scores = await this.scoreRepo
@@ -40,7 +41,7 @@ export class ScoringController {
         name: s.trend.name,
         category: s.trend.category,
         tippingPointScore: Number(s.tippingPointScore),
-        discourseStage: s.discourseStage,
+        discourseStage: s.discourseStage as ApiDiscourseStage,
         stageConfidence: Number(s.stageConfidence),
         googleTrendValue: s.googleTrendValue,
         googleTrendVelocity: Number(s.googleTrendVelocity),
@@ -57,8 +58,8 @@ export class ScoringController {
   }
 
   @Get('tipping')
-  async getTippingTrends() {
-    const cached = await getCachedJson(this.redis, 'trends:tipping', this.logger);
+  async getTippingTrends(): Promise<ApiTrendSummary[]> {
+    const cached = await getCachedJson<ApiTrendSummary[]>(this.redis, 'trends:tipping', this.logger);
     if (cached) return cached;
 
     const scores = await this.scoreRepo
@@ -81,7 +82,8 @@ export class ScoringController {
         name: s.trend.name,
         category: s.trend.category,
         tippingPointScore: Number(s.tippingPointScore),
-        discourseStage: s.discourseStage,
+        discourseStage: s.discourseStage as ApiDiscourseStage,
+        googleTrendVelocity: Number(s.googleTrendVelocity),
         scoredAt: s.scoredAt,
       }));
 
@@ -90,8 +92,8 @@ export class ScoringController {
   }
 
   @Get('rising')
-  async getRisingTrends() {
-    const cached = await getCachedJson(this.redis, 'trends:rising', this.logger);
+  async getRisingTrends(): Promise<ApiTrendSummary[]> {
+    const cached = await getCachedJson<ApiTrendSummary[]>(this.redis, 'trends:rising', this.logger);
     if (cached) return cached;
 
     const scores = await this.scoreRepo
@@ -109,7 +111,7 @@ export class ScoringController {
         category: s.trend.category,
         tippingPointScore: Number(s.tippingPointScore),
         googleTrendVelocity: Number(s.googleTrendVelocity),
-        discourseStage: s.discourseStage,
+        discourseStage: s.discourseStage as ApiDiscourseStage,
         scoredAt: s.scoredAt,
       }))
       .sort((a, b) => b.googleTrendVelocity - a.googleTrendVelocity)

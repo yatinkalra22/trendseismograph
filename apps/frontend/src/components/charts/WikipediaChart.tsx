@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import { formatNumber } from '@/lib/utils';
 
 interface DataPoint {
-  scoredAt: string;
+  scoredAt: string | Date;
   wikipediaPageviews: number;
 }
 

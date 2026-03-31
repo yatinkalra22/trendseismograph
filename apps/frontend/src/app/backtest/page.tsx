@@ -268,7 +268,9 @@ export default function BacktestPage() {
                     </td>
                     <td className="px-4 py-3 text-text-secondary capitalize hidden sm:table-cell">{r.trend?.category}</td>
                     <td className="px-4 py-3 text-text-secondary capitalize">{r.predictedStage?.replace('_', ' ')}</td>
-                    <td className="px-4 py-3 text-right font-mono font-bold text-tipping">{Number(r.predictedScore).toFixed(1)}</td>
+                    <td className="px-4 py-3 text-right font-mono font-bold text-tipping">
+                      {r.predictedScore == null ? '-' : Number(r.predictedScore).toFixed(1)}
+                    </td>
                     <td className="px-4 py-3">
                       <span className={cn(
                         'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium',
