@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Alert } from './entities/alert.entity';
 import { Trend } from '../trends/entities/trend.entity';
 import { CreateAlertDto } from './dto/create-alert.dto';
+import { AppErrorCode, DomainError } from '../../common/errors/app-error';
 
 @Injectable()
 export class AlertsService {
@@ -14,7 +15,9 @@ export class AlertsService {
 
   async create(dto: CreateAlertDto) {
     const trend = await this.trendRepo.findOne({ where: { slug: dto.slug } });
-    if (!trend) throw new NotFoundException(`Trend "${dto.slug}" not found`);
+    if (!trend) {
+      throw new DomainError(AppErrorCode.NOT_FOUND, `Trend "${dto.slug}" not found`, { slug: dto.slug });
+    }
 
     const alert = this.alertRepo.create({
       userEmail: dto.email,
@@ -34,9 +37,11 @@ export class AlertsService {
 
   async remove(id: string, email?: string) {
     const alert = await this.alertRepo.findOne({ where: { id } });
-    if (!alert) throw new NotFoundException('Alert not found');
+    if (!alert) {
+      throw new DomainError(AppErrorCode.NOT_FOUND, 'Alert not found', { id });
+    }
     if (email && alert.userEmail !== email) {
-      throw new NotFoundException('Alert not found');
+      throw new DomainError(AppErrorCode.NOT_FOUND, 'Alert not found', { id, email });
     }
     await this.alertRepo.remove(alert);
     return { message: 'Alert deleted' };

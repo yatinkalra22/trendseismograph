@@ -1,12 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 import { BacktestResult } from './entities/backtest-result.entity';
+import { getCachedJson, setCachedJson } from '../../common/cache/cache-json';
 
 @Injectable()
 export class BacktestService {
+  private readonly logger = new Logger(BacktestService.name);
+
   constructor(
     @InjectRepository(BacktestResult) private backtestRepo: Repository<BacktestResult>,
     @InjectRedis() private redis: Redis,
@@ -29,8 +32,8 @@ export class BacktestService {
 
   async getAccuracy() {
     const cacheKey = 'backtest:accuracy';
-    const cached = await this.redis.get(cacheKey);
-    if (cached) return JSON.parse(cached);
+    const cached = await getCachedJson(this.redis, cacheKey, this.logger);
+    if (cached) return cached;
 
     const results = await this.backtestRepo.find({ relations: ['trend'] });
 
@@ -77,7 +80,7 @@ export class BacktestService {
       weeksBeforePeakDistribution: weeksDistribution,
     };
 
-    await this.redis.setex(cacheKey, 86400, JSON.stringify(result));
+    await setCachedJson(this.redis, cacheKey, 86400, result, this.logger);
     return result;
   }
 

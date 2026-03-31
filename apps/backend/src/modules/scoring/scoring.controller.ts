@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Param, UseGuards, Logger } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,10 +8,13 @@ import { TrendScore } from '../trends/entities/trend-score.entity';
 import { ApiKeyGuard } from '../auth/api-key.guard';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import { getCachedJson, setCachedJson } from '../../common/cache/cache-json';
 
 @ApiTags('scores')
 @Controller('api/scores')
 export class ScoringController {
+  private readonly logger = new Logger(ScoringController.name);
+
   constructor(
     @InjectRepository(TrendScore) private scoreRepo: Repository<TrendScore>,
     @InjectRedis() private redis: Redis,
@@ -20,8 +23,8 @@ export class ScoringController {
 
   @Get('leaderboard')
   async getLeaderboard() {
-    const cached = await this.redis.get('leaderboard:tps');
-    if (cached) return JSON.parse(cached);
+    const cached = await getCachedJson(this.redis, 'leaderboard:tps', this.logger);
+    if (cached) return cached;
 
     const scores = await this.scoreRepo
       .createQueryBuilder('s')
@@ -49,14 +52,14 @@ export class ScoringController {
       .sort((a, b) => b.tippingPointScore - a.tippingPointScore)
       .slice(0, 20);
 
-    await this.redis.setex('leaderboard:tps', 1800, JSON.stringify(leaderboard));
+    await setCachedJson(this.redis, 'leaderboard:tps', 1800, leaderboard, this.logger);
     return leaderboard;
   }
 
   @Get('tipping')
   async getTippingTrends() {
-    const cached = await this.redis.get('trends:tipping');
-    if (cached) return JSON.parse(cached);
+    const cached = await getCachedJson(this.redis, 'trends:tipping', this.logger);
+    if (cached) return cached;
 
     const scores = await this.scoreRepo
       .createQueryBuilder('s')
@@ -82,14 +85,14 @@ export class ScoringController {
         scoredAt: s.scoredAt,
       }));
 
-    await this.redis.setex('trends:tipping', 1800, JSON.stringify(tipping));
+    await setCachedJson(this.redis, 'trends:tipping', 1800, tipping, this.logger);
     return tipping;
   }
 
   @Get('rising')
   async getRisingTrends() {
-    const cached = await this.redis.get('trends:rising');
-    if (cached) return JSON.parse(cached);
+    const cached = await getCachedJson(this.redis, 'trends:rising', this.logger);
+    if (cached) return cached;
 
     const scores = await this.scoreRepo
       .createQueryBuilder('s')
@@ -112,7 +115,7 @@ export class ScoringController {
       .sort((a, b) => b.googleTrendVelocity - a.googleTrendVelocity)
       .slice(0, 20);
 
-    await this.redis.setex('trends:rising', 1800, JSON.stringify(rising));
+    await setCachedJson(this.redis, 'trends:rising', 1800, rising, this.logger);
     return rising;
   }
 
