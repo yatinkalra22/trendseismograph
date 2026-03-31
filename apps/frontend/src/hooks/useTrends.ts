@@ -39,7 +39,13 @@ export const useBacktestResults = () =>
   useQuery({ queryKey: ['backtest-results'], queryFn: fetchBacktestResults, staleTime: 1000 * 60 * 30 });
 
 export const useSearch = (q: string) =>
-  useQuery({ queryKey: ['search', q], queryFn: () => searchTrends(q), enabled: q.length > 1, staleTime: 1000 * 60 });
+  useQuery({
+    queryKey: ['search', q],
+    queryFn: ({ signal }) => searchTrends(q, signal),
+    enabled: q.trim().length > 1,
+    staleTime: 1000 * 60,
+    retry: false,
+  });
 
 export const useCreateAlert = () =>
   useMutation({

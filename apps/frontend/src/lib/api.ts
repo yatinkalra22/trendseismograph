@@ -86,8 +86,8 @@ export const fetchRisingTrends = () =>
   api.get('/api/scores/rising').then((r) => r.data);
 
 // Discovery
-export const searchTrends = (q: string) =>
-  api.get('/api/discover', { params: { q } }).then((r) => r.data);
+export const searchTrends = (q: string, signal?: AbortSignal) =>
+  api.get('/api/discover', { params: { q }, signal }).then((r) => r.data);
 
 // Backtest
 export const fetchBacktestAccuracy = () =>
