@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { Search, Bell, CheckCircle2, Loader2 } from 'lucide-react';
 import { useSearch } from '@/hooks/useTrends';
 import { TrendCard } from '@/components/trends/TrendCard';
-import { createAlert } from '@/lib/api';
+import { createAlert, getApiErrorMessage } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 export default function ExplorePage() {
@@ -43,8 +43,8 @@ function ExploreContent() {
         triggerScore: parseFloat(alertScore),
       });
       setAlertSent(true);
-    } catch (err: any) {
-      setAlertError(err?.response?.data?.message || 'Failed to create alert');
+    } catch (err: unknown) {
+      setAlertError(getApiErrorMessage(err));
     } finally {
       setAlertLoading(false);
     }
