@@ -2,17 +2,17 @@
 
 **Cultural tipping point detection engine.** We don't track trends. We predict them.
 
-TrendSeismograph analyzes *how people talk about a trend* — not just how many are searching for it. Using a three-signal pipeline (Google Trends velocity, Reddit discourse NLP, Wikipedia pageview acceleration), we detect the moment a trend shifts from niche to mainstream.
+TrendSeismograph analyzes *how people talk about a trend*, not just search volume. Using a three-signal pipeline (Google Trends velocity, Reddit discourse NLP, and Wikipedia pageview acceleration), it identifies when a trend moves from niche to mainstream.
 
 ## Key Features
 
-- **Tipping Point Score (0-10):** Single actionable number fusing all signals
-- **Discourse Stage Classifier:** NLP-powered adoption stage detection (discovery -> early adoption -> tipping point -> mainstream -> saturation)
-- **Back-Tested Accuracy:** 81% accuracy, 5 weeks before Google Trends peak (validated on 50+ historical trends)
-- **Multi-Signal Ingestion:** Automated 6-hour data pipeline from Google Trends, Reddit, Wikipedia
-- **Real-Time Leaderboard:** Ranked trends with velocity indicators
-- **Email Alerts:** Get notified when trends cross score thresholds
-- **Developer REST API:** Public API with Swagger docs at `/api/docs` (development only)
+- **Tipping Point Score (0-10):** A single actionable score that fuses all signals.
+- **Discourse Stage Classifier:** NLP-powered adoption-stage detection (discovery -> early adoption -> tipping point -> mainstream -> saturation).
+- **Backtested Accuracy:** 81% accuracy, five weeks before Google Trends peak (validated on 50+ historical trends).
+- **Multi-Signal Ingestion:** Automated six-hour pipeline across Google Trends, Reddit, and Wikipedia.
+- **Real-Time Leaderboard:** Ranked trends with velocity indicators.
+- **Email Alerts:** Notifications when trends cross score thresholds.
+- **Developer REST API:** Public API with Swagger docs at `/api/docs` in development.
 
 ## Tech Stack
 
@@ -23,15 +23,23 @@ TrendSeismograph analyzes *how people talk about a trend* — not just how many 
 | NLP Service | Python FastAPI, HuggingFace (bart-large-mnli, distilbert) |
 | Infrastructure | Docker Compose, Railway, Vercel |
 
+## Documentation Map
+
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): system design, module boundaries, queue pipeline, security model, and TPS formula.
+- [docs/API.md](docs/API.md): API endpoints, authentication rules, and Swagger usage in development.
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md): prerequisites, local and production deployment flow, and environment variable ownership.
+- [CONTRIBUTING.md](CONTRIBUTING.md): development workflow, pull request expectations, and documentation standards.
+- [docs/TESTING.md](docs/TESTING.md): canonical test commands and current test scope.
+
 ## Quick Start
 
 ```bash
-# 1. Clone and install
+# 1. Clone and bootstrap
 git clone https://github.com/yourusername/trendseismograph
 cd trendseismograph
 ./scripts/setup.sh
 
-# 2. Start all services
+# 2. Start local stack
 docker compose up --build
 
 # 3. Seed data
@@ -43,6 +51,8 @@ docker compose up --build
 # Swagger:   http://localhost:3001/api/docs
 # NLP:       http://localhost:8000/docs
 ```
+
+For production deployment and complete environment configuration, use [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Project Structure
 
@@ -59,15 +69,9 @@ trendseismograph/
 └── pnpm-workspace.yaml
 ```
 
-## Documentation
-
-- [Architecture](docs/ARCHITECTURE.md) - System design, DB schema, queue pipeline
-- [API Reference](docs/API.md) - All REST endpoints
-- [Deployment](docs/DEPLOYMENT.md) - Deploy scripts and production setup
-
 ## Scripts
 
-All operations are automated — no manual steps required:
+Common commands:
 
 | Script | Purpose |
 |--------|---------|
@@ -82,15 +86,18 @@ All operations are automated — no manual steps required:
 
 ## Environment Variables
 
-Copy `.env.example` to `.env` and fill in your credentials:
+Copy `.env.example` to `.env`:
 
 ```bash
 cp .env.example .env
 ```
 
-Required external credentials:
-- **Reddit API:** [Create app](https://www.reddit.com/prefs/apps) (type: script)
-- **Resend:** [Get API key](https://resend.com) (free tier: 3K emails/month)
+The authoritative environment variable reference (required values, optional defaults, and deployment notes) is in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
+## Documentation Rules
+
+- Each topic has one authoritative document; other docs should link to it rather than duplicate it.
+- If behavior changes in code, update the owning document in the same PR.
 
 ## License
 
