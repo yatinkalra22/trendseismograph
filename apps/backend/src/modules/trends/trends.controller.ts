@@ -3,6 +3,7 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { TrendsService } from './trends.service';
 import { CreateTrendDto } from './dto/create-trend.dto';
 import { TrendQueryDto } from './dto/trend-query.dto';
+import { TrendHistoryQueryDto } from './dto/trend-history-query.dto';
 import { ApiKeyGuard } from '../auth/api-key.guard';
 
 @ApiTags('trends')
@@ -21,8 +22,8 @@ export class TrendsController {
   }
 
   @Get(':slug/history')
-  getHistory(@Param('slug') slug: string, @Query('days') days: number = 90) {
-    return this.trendsService.getHistory(slug, days);
+  getHistory(@Param('slug') slug: string, @Query() query: TrendHistoryQueryDto) {
+    return this.trendsService.getHistory(slug, query.days ?? 90);
   }
 
   @Get(':slug/reddit')

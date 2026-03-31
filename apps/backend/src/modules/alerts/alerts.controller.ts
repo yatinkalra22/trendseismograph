@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Delete, Param, Query, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Query, Body, ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { AlertsService } from './alerts.service';
 import { CreateAlertDto } from './dto/create-alert.dto';
+import { AlertsEmailQueryDto } from './dto/alerts-email-query.dto';
 import { ApiKeyGuard } from '../auth/api-key.guard';
 
 @ApiTags('alerts')
@@ -17,14 +18,17 @@ export class AlertsController {
   }
 
   @Get()
-  findByEmail(@Query('email') email: string) {
-    return this.alertsService.findByEmail(email);
+  findByEmail(@Query() query: AlertsEmailQueryDto) {
+    return this.alertsService.findByEmail(query.email);
   }
 
   @Delete(':id')
   @UseGuards(ApiKeyGuard)
   @ApiBearerAuth()
-  remove(@Param('id') id: string, @Query('email') email: string) {
-    return this.alertsService.remove(id, email);
+  remove(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Query() query: AlertsEmailQueryDto,
+  ) {
+    return this.alertsService.remove(id, query.email);
   }
 }
