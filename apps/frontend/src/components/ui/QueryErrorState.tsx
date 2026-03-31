@@ -17,7 +17,7 @@ export function QueryErrorState({
   className = '',
 }: QueryErrorStateProps) {
   return (
-    <div className={`rounded-xl border border-red-500/30 bg-red-500/10 p-4 sm:p-5 ${className}`}>
+    <div className={`rounded-xl border border-red-500/30 bg-red-500/10 p-4 sm:p-5 ${className}`} role="alert" aria-live="assertive">
       <div className="flex items-start gap-3">
         <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-300" />
         <div>

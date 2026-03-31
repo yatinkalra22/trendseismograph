@@ -43,7 +43,7 @@ export default function BacktestPage() {
   }, [results, filter]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10" aria-busy={loadingAccuracy || loadingResults}>
       {(isAccuracyError || isResultsError) && (
         <QueryErrorState
           error={accuracyError ?? resultsError}
@@ -238,6 +238,11 @@ export default function BacktestPage() {
 
         {loadingResults ? (
           <Skeleton className="h-64" />
+        ) : filtered.length === 0 ? (
+          <div className="rounded-xl border border-border bg-surface p-10 text-center text-text-secondary">
+            <p className="text-base">No backtest rows for this filter.</p>
+            <p className="text-sm mt-1">Switch to another outcome to inspect more results.</p>
+          </div>
         ) : (
           <div className="overflow-x-auto rounded-xl border border-border">
             <table className="w-full text-sm">

@@ -6,14 +6,31 @@ import { motion } from 'framer-motion';
 import { Search, Bell, CheckCircle2, Loader2 } from 'lucide-react';
 import { useSearch } from '@/hooks/useTrends';
 import { TrendCard } from '@/components/trends/TrendCard';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { createAlert, getApiErrorMessage } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 export default function ExplorePage() {
   return (
-    <Suspense fallback={<div className="max-w-7xl mx-auto px-4 py-10 text-text-secondary">Loading...</div>}>
+    <Suspense fallback={<ExploreFallback />}>
       <ExploreContent />
     </Suspense>
+  );
+}
+
+function ExploreFallback() {
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      <Skeleton className="h-10 w-64 mb-2" label="Loading explore page" />
+      <Skeleton className="h-5 w-96 max-w-full mb-8" />
+      <Skeleton className="h-12 w-full mb-8" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className="h-36" />
+        ))}
+      </div>
+      <Skeleton className="h-72 max-w-lg" />
+    </div>
   );
 }
 
@@ -51,7 +68,7 @@ function ExploreContent() {
   }, [alertEmail, alertTrend, alertScore]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10" aria-busy={isLoading}>
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold mb-2">Explore Trends</h1>
@@ -66,16 +83,28 @@ function ExploreContent() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search trends... (e.g. pickleball, oat milk, solarpunk)"
+          aria-label="Search trends"
           className="w-full pl-12 pr-4 py-3 bg-surface border border-border rounded-xl text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-tipping/40 transition-colors"
         />
       </div>
 
+      {query.length === 1 && (
+        <p className="mb-6 text-xs text-text-secondary">Keep typing to search (minimum 2 characters).</p>
+      )}
+
       {/* Search Results */}
       {query.length > 1 && (
-        <div className="mb-10">
+        <div className="mb-10" aria-live="polite">
           <h2 className="text-sm font-semibold text-text-secondary mb-4">
             {isLoading ? 'Searching...' : `${results?.length ?? 0} results for "${query}"`}
           </h2>
+          {isLoading && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-36" label="Searching trends" />
+              ))}
+            </div>
+          )}
           {results && results.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {results.map((t: any, i: number) => (

@@ -29,6 +29,7 @@ export default function TrendDetailPage() {
   } = useTrend(slug);
   const {
     data: history,
+    isLoading: isHistoryLoading,
     isError: isHistoryError,
     error: historyError,
     refetch: refetchHistory,
@@ -74,7 +75,7 @@ export default function TrendDetailPage() {
   const icon = CATEGORY_ICONS[trend.category] ?? '';
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10" aria-busy={isLoading || isHistoryLoading}>
       {/* Back link */}
       <Link href="/dashboard" className="inline-flex items-center gap-1 text-sm text-text-secondary hover:text-text-primary mb-6 transition-colors">
         <ArrowLeft className="w-4 h-4" /> Dashboard
@@ -146,6 +147,14 @@ export default function TrendDetailPage() {
       )}
 
       {/* Charts Grid */}
+      {isHistoryLoading && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-72" label="Loading trend history" />
+          ))}
+        </div>
+      )}
+
       {history && history.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <motion.div
@@ -187,6 +196,13 @@ export default function TrendDetailPage() {
             <h3 className="text-sm font-semibold text-text-secondary mb-4">Wikipedia Pageviews</h3>
             <WikipediaChart data={history} />
           </motion.div>
+        </div>
+      )}
+
+      {!isHistoryLoading && !isHistoryError && (!history || history.length === 0) && (
+        <div className="mb-8 rounded-xl border border-border bg-surface p-8 text-center text-text-secondary">
+          <p className="text-base">No history available for this trend yet.</p>
+          <p className="text-sm mt-1">Check back after the next ingestion cycle.</p>
         </div>
       )}
 

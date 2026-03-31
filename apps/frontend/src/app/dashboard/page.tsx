@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { LayoutGrid, List, Flame } from 'lucide-react';
@@ -21,6 +23,7 @@ const STAGE_FILTERS = [
 ];
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { data: leaderboard, isLoading, isError, error, refetch } = useLeaderboard();
   const { selectedStage, selectedCategory, viewMode, setStage, setCategory, setViewMode } = useAppStore();
 
@@ -39,7 +42,7 @@ export default function DashboardPage() {
   }, [leaderboard]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10" aria-busy={isLoading}>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
@@ -78,14 +81,14 @@ export default function DashboardPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             {tippingNow.map((t: any) => (
-              <a
+              <Link
                 key={t.slug}
                 href={`/trends/${t.slug}`}
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface border border-border hover:border-tipping/40 transition-colors text-sm"
               >
                 <span className="font-mono font-bold text-tipping">{Number(t.tippingPointScore).toFixed(1)}</span>
                 <span>{t.name}</span>
-              </a>
+              </Link>
             ))}
           </div>
         </motion.div>
@@ -207,7 +210,7 @@ export default function DashboardPage() {
                 <tr
                   key={t.slug}
                   className="border-b border-border hover:bg-surface-hover transition-colors cursor-pointer"
-                  onClick={() => window.location.href = `/trends/${t.slug}`}
+                  onClick={() => router.push(`/trends/${t.slug}`)}
                 >
                   <td className="px-4 py-3 text-text-secondary font-mono">{i + 1}</td>
                   <td className="px-4 py-3 font-medium">{t.name}</td>
@@ -228,6 +231,7 @@ export default function DashboardPage() {
       {!isLoading && filtered.length === 0 && (
         <div className="text-center py-20 text-text-secondary">
           <p className="text-lg">No trends match your filters</p>
+          <p className="text-sm mt-1">Try changing stage/category or clearing all filters.</p>
           <button onClick={() => { setStage(null); setCategory(null); }} className="text-tipping text-sm mt-2 hover:underline">
             Clear filters
           </button>
