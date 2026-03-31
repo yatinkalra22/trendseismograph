@@ -10,7 +10,8 @@
     "migration:run": "typeorm migration:run -d src/database/data-source.ts",
     "migration:generate": "typeorm migration:generate -d src/database/data-source.ts",
     "seed": "ts-node src/database/seed.ts",
-    "lint": "eslint \"{src,test}/**/*.ts\""
+    "lint": "eslint \"{src,test}/**/*.ts\"",
+    "test:contracts": "node --test -r ts-node/register test/**/*.test.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.0",

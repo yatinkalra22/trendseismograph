@@ -1,5 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
-import { AppError, AppErrorCode } from './app-error';
+import type { AppError } from './app-error';
+import { AppErrorCode } from './app-error';
 
 type MappedError = {
   status: number;
