@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useCallback, useMemo, useEffect } from 'react';
+import { Suspense, useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Search, Bell, CheckCircle2, Loader2 } from 'lucide-react';
@@ -37,6 +37,7 @@ function ExploreFallback() {
 function ExploreContent() {
   const searchParams = useSearchParams();
   const alertSlug = searchParams.get('alert') ?? '';
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const [queryInput, setQueryInput] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -51,6 +52,34 @@ function ExploreContent() {
       window.clearTimeout(timeoutId);
     };
   }, [normalizedQueryInput]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      const isTypingTarget = Boolean(
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.isContentEditable),
+      );
+
+      if (event.key === '/' && !event.metaKey && !event.ctrlKey && !event.altKey && !isTypingTarget) {
+        event.preventDefault();
+        searchInputRef.current?.focus();
+      }
+
+      if (event.key === 'Escape' && document.activeElement === searchInputRef.current && queryInput.length > 0) {
+        event.preventDefault();
+        setQueryInput('');
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [queryInput.length]);
 
   const { data: results, isLoading, isError, error, refetch } = useSearch(debouncedQuery);
   const createAlertMutation = useCreateAlert();
@@ -94,6 +123,7 @@ function ExploreContent() {
       <div className="relative mb-8">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
         <input
+          ref={searchInputRef}
           type="text"
           value={queryInput}
           onChange={(e) => setQueryInput(e.target.value)}
@@ -102,6 +132,7 @@ function ExploreContent() {
           className="w-full pl-12 pr-4 py-3 bg-surface border border-border rounded-xl text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-tipping/40 transition-colors"
         />
       </div>
+      <p className="mb-3 text-xs text-text-secondary">Tip: press / to focus search, Esc to clear.</p>
 
       {normalizedQueryInput.length === 1 && (
         <p className="mb-6 text-xs text-text-secondary">Keep typing to search (minimum 2 characters).</p>
