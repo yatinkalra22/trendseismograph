@@ -208,7 +208,7 @@ function ExploreContent() {
           )}
           {results && results.length > 0 && !isError && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {results.map((t: any, i: number) => (
+              {results.map((t, i: number) => (
                 <motion.div
                   key={t.slug}
                   initial={{ opacity: 0, y: 10 }}

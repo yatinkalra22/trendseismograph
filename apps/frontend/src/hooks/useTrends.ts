@@ -13,6 +13,7 @@ import {
   fetchBacktestResults,
   searchTrends,
 } from '@/lib/api';
+import { CreateAlertPayload } from '@/lib/types';
 
 export const useLeaderboard = () =>
   useQuery({ queryKey: ['leaderboard'], queryFn: fetchLeaderboard, staleTime: 1000 * 60 * 5 });
@@ -51,5 +52,5 @@ export const useSearch = (q: string) =>
 export const useCreateAlert = () =>
   useMutation({
     mutationKey: ['create-alert'],
-    mutationFn: (data: { email: string; slug: string; triggerStage?: string; triggerScore?: number }) => createAlert(data),
+    mutationFn: (data: CreateAlertPayload) => createAlert(data),
   });

@@ -27,7 +27,7 @@ export default function DashboardPage() {
 
   const filtered = useMemo(() => {
     if (!leaderboard) return [];
-    return leaderboard.filter((t: any) => {
+    return leaderboard.filter((t) => {
       if (selectedStage && t.discourseStage !== selectedStage) return false;
       if (selectedCategory && t.category !== selectedCategory) return false;
       return true;
@@ -36,7 +36,7 @@ export default function DashboardPage() {
 
   const tippingNow = useMemo(() => {
     if (!leaderboard) return [];
-    return leaderboard.filter((t: any) => t.discourseStage === 'tipping_point');
+    return leaderboard.filter((t) => t.discourseStage === 'tipping_point');
   }, [leaderboard]);
 
   return (
@@ -82,7 +82,7 @@ export default function DashboardPage() {
             <span className="text-xs text-text-secondary">({tippingNow.length} trends at tipping point)</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            {tippingNow.map((t: any) => (
+            {tippingNow.map((t) => (
               <Link
                 key={t.slug}
                 href={`/trends/${t.slug}`}
@@ -169,7 +169,7 @@ export default function DashboardPage() {
       {/* Grid View */}
       {!isLoading && viewMode === 'grid' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((t: any, i: number) => (
+          {filtered.map((t, i: number) => (
             <motion.div
               key={t.slug}
               initial={{ opacity: 0, y: 10 }}
@@ -208,7 +208,7 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((t: any, i: number) => (
+              {filtered.map((t, i: number) => (
                 <tr
                   key={t.slug}
                   className="border-b border-border hover:bg-surface-hover transition-colors"

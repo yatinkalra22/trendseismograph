@@ -1,4 +1,13 @@
 import axios, { AxiosError } from 'axios';
+import {
+  BacktestAccuracy,
+  BacktestResult,
+  CreateAlertPayload,
+  TrendDetail,
+  TrendHistoryPoint,
+  TrendSearchResult,
+  TrendSummary,
+} from '@/lib/types';
 
 type ApiErrorResponse = {
   statusCode?: number;
@@ -64,38 +73,38 @@ api.interceptors.response.use(
 
 // Trends
 export const fetchTrends = (params?: { stage?: string; category?: string; page?: number }) =>
-  api.get('/api/trends', { params }).then((r) => r.data);
+  api.get<TrendDetail[]>('/api/trends', { params }).then((r) => r.data);
 
 export const fetchTrend = (slug: string) =>
-  api.get(`/api/trends/${slug}`).then((r) => r.data);
+  api.get<TrendDetail>(`/api/trends/${slug}`).then((r) => r.data);
 
 export const fetchTrendHistory = (slug: string, days = 90) =>
-  api.get(`/api/trends/${slug}/history`, { params: { days } }).then((r) => r.data);
+  api.get<TrendHistoryPoint[]>(`/api/trends/${slug}/history`, { params: { days } }).then((r) => r.data);
 
 export const fetchRedditSamples = (slug: string) =>
   api.get(`/api/trends/${slug}/reddit`).then((r) => r.data);
 
 // Scores
 export const fetchLeaderboard = () =>
-  api.get('/api/scores/leaderboard').then((r) => r.data);
+  api.get<TrendSummary[]>('/api/scores/leaderboard').then((r) => r.data);
 
 export const fetchTippingTrends = () =>
-  api.get('/api/scores/tipping').then((r) => r.data);
+  api.get<TrendSummary[]>('/api/scores/tipping').then((r) => r.data);
 
 export const fetchRisingTrends = () =>
-  api.get('/api/scores/rising').then((r) => r.data);
+  api.get<TrendSummary[]>('/api/scores/rising').then((r) => r.data);
 
 // Discovery
 export const searchTrends = (q: string, signal?: AbortSignal) =>
-  api.get('/api/discover', { params: { q }, signal }).then((r) => r.data);
+  api.get<TrendSearchResult[]>('/api/discover', { params: { q }, signal }).then((r) => r.data);
 
 // Backtest
 export const fetchBacktestAccuracy = () =>
-  api.get('/api/backtest/accuracy').then((r) => r.data);
+  api.get<BacktestAccuracy>('/api/backtest/accuracy').then((r) => r.data);
 
 export const fetchBacktestResults = () =>
-  api.get('/api/backtest/results').then((r) => r.data);
+  api.get<BacktestResult[]>('/api/backtest/results').then((r) => r.data);
 
 // Alerts
-export const createAlert = (data: { email: string; slug: string; triggerStage?: string; triggerScore?: number }) =>
+export const createAlert = (data: CreateAlertPayload) =>
   api.post('/api/alerts', data).then((r) => r.data);

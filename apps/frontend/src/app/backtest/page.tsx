@@ -40,7 +40,7 @@ export default function BacktestPage() {
   const filtered = useMemo(() => {
     if (!results) return [];
     if (filter === 'all') return results;
-    return results.filter((r: any) => r.actualOutcome === filter);
+    return results.filter((r) => r.actualOutcome === filter);
   }, [results, filter]);
 
   return (
@@ -137,7 +137,7 @@ export default function BacktestPage() {
             <div className="rounded-lg border border-border p-3">
               <p className="text-text-secondary mb-1">95% CI (accuracy)</p>
               <p className="font-mono text-text-primary">
-                {(accuracy.overallAccuracyCI95?.lower * 100 || 0).toFixed(1)}% - {(accuracy.overallAccuracyCI95?.upper * 100 || 0).toFixed(1)}%
+                {((accuracy.overallAccuracyCI95?.lower ?? 0) * 100).toFixed(1)}% - {((accuracy.overallAccuracyCI95?.upper ?? 0) * 100).toFixed(1)}%
               </p>
             </div>
             <div className="rounded-lg border border-border p-3">
@@ -164,7 +164,7 @@ export default function BacktestPage() {
         >
           <h3 className="text-sm font-semibold text-text-secondary mb-4">Accuracy by Category</h3>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={accuracy.categoryAccuracy.map((c: any) => ({ ...c, pct: Math.round(c.accuracy * 100) }))}>
+            <BarChart data={accuracy.categoryAccuracy.map((c) => ({ ...c, pct: Math.round(c.accuracy * 100) }))}>
               <CartesianGrid strokeDasharray="3 3" stroke="#222" />
               <XAxis dataKey="category" stroke="#555" tick={{ fontSize: 11 }} className="capitalize" />
               <YAxis domain={[0, 100]} stroke="#555" tick={{ fontSize: 11 }} tickFormatter={(v) => `${v}%`} />
@@ -174,7 +174,7 @@ export default function BacktestPage() {
                 formatter={(v: number) => [`${v}%`, 'Accuracy']}
               />
               <Bar dataKey="pct" radius={[4, 4, 0, 0]}>
-                {accuracy.categoryAccuracy.map((c: any, i: number) => (
+                {accuracy.categoryAccuracy.map((c, i: number) => (
                   <Cell key={i} fill={CATEGORY_COLORS[c.category] ?? '#888'} />
                 ))}
               </Bar>
@@ -259,7 +259,7 @@ export default function BacktestPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((r: any) => (
+                {filtered.map((r) => (
                   <tr key={r.id} className="border-b border-border hover:bg-surface-hover transition-colors">
                     <td className="px-4 py-3 font-medium">
                       <Link href={`/trends/${r.trend?.slug}`} className="hover:text-tipping transition-colors">
