@@ -64,6 +64,13 @@ function ExploreContent() {
           target.isContentEditable),
       );
 
+      const isFocusShortcut = (event.metaKey || event.ctrlKey) && !event.altKey && event.key.toLowerCase() === 'k';
+
+      if (isFocusShortcut) {
+        event.preventDefault();
+        searchInputRef.current?.focus();
+      }
+
       if (event.key === '/' && !event.metaKey && !event.ctrlKey && !event.altKey && !isTypingTarget) {
         event.preventDefault();
         searchInputRef.current?.focus();
@@ -140,6 +147,8 @@ function ExploreContent() {
           }}
           placeholder="Search trends... (e.g. pickleball, oat milk, solarpunk)"
           aria-label="Search trends"
+          aria-keyshortcuts="/ Meta+K Control+K Escape"
+          autoComplete="off"
           className={cn(
             'w-full pl-12 pr-20 py-3 bg-surface border rounded-xl text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-tipping/40 transition-colors',
             isSearchUpdating ? 'border-tipping/30' : 'border-border',
@@ -160,7 +169,7 @@ function ExploreContent() {
           </button>
         )}
       </div>
-      <p className="mb-3 text-xs text-text-secondary">Tip: press / to focus search, Esc to clear.</p>
+      <p className="mb-3 text-xs text-text-secondary">Tip: press / or Cmd/Ctrl+K to focus search, Esc to clear.</p>
 
       {normalizedQueryInput.length === 1 && (
         <p className="mb-6 text-xs text-text-secondary">Keep typing to search (minimum 2 characters).</p>
