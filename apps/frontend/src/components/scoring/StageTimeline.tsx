@@ -1,5 +1,6 @@
 'use client';
 
+import { memo, useMemo } from 'react';
 import { motion } from 'framer-motion';
 
 const STAGES = ['discovery', 'early_adoption', 'tipping_point', 'mainstream', 'saturation'];
@@ -9,8 +10,25 @@ interface Props {
   currentStage: string;
 }
 
-export function StageTimeline({ currentStage }: Props) {
-  const currentIdx = STAGES.indexOf(currentStage);
+// Memoized stage bar with stable animation logic
+const StageBar = memo(function StageBar({ isActive, isPast }: { isActive: boolean; isPast: boolean }) {
+  return (
+    <motion.div
+      className={`h-2 w-full rounded-full ${
+        isPast
+          ? 'bg-emerald-500'
+          : isActive
+            ? 'bg-emerald-400'
+            : 'bg-surface border border-border'
+      }`}
+      animate={isActive ? { scale: 1.1 } : { scale: 1 }}
+      transition={isActive ? { repeat: Infinity, repeatType: 'reverse', duration: 1 } : {}}
+    />
+  );
+});
+
+export const StageTimeline = memo(function StageTimeline({ currentStage }: Props) {
+  const currentIdx = useMemo(() => STAGES.indexOf(currentStage), [currentStage]);
 
   return (
     <div className="flex items-center gap-1 w-full">
@@ -20,17 +38,7 @@ export function StageTimeline({ currentStage }: Props) {
 
         return (
           <div key={stage} className="flex flex-col items-center flex-1">
-            <motion.div
-              className={`h-2 w-full rounded-full ${
-                isPast
-                  ? 'bg-emerald-500'
-                  : isActive
-                    ? 'bg-emerald-400'
-                    : 'bg-surface border border-border'
-              }`}
-              animate={{ scale: isActive ? 1.1 : 1 }}
-              transition={{ repeat: isActive ? Infinity : 0, repeatType: 'reverse', duration: 1 }}
-            />
+            <StageBar isActive={isActive} isPast={isPast} />
             <span
               className={`text-[10px] sm:text-xs mt-1 text-center leading-tight ${
                 isActive ? 'text-emerald-400 font-semibold' : 'text-text-secondary'
@@ -43,4 +51,4 @@ export function StageTimeline({ currentStage }: Props) {
       })}
     </div>
   );
-}
+});

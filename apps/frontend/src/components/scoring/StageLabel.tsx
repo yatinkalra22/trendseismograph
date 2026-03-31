@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { STAGE_COLORS, STAGE_LABELS } from '@/lib/constants';
 
 interface Props {
@@ -7,7 +8,7 @@ interface Props {
   size?: 'sm' | 'md';
 }
 
-export function StageLabel({ stage, size = 'sm' }: Props) {
+export const StageLabel = memo(function StageLabel({ stage, size = 'sm' }: Props) {
   const color = STAGE_COLORS[stage] ?? '#888';
   const label = STAGE_LABELS[stage] ?? stage;
 
@@ -22,4 +23,4 @@ export function StageLabel({ stage, size = 'sm' }: Props) {
       {label}
     </span>
   );
-}
+});

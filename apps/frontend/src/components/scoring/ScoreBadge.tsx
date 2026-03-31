@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { STAGE_COLORS } from '@/lib/constants';
 import { formatScore } from '@/lib/utils';
 
@@ -9,7 +10,7 @@ interface Props {
   size?: 'sm' | 'lg';
 }
 
-export function ScoreBadge({ score, stage, size = 'sm' }: Props) {
+export const ScoreBadge = memo(function ScoreBadge({ score, stage, size = 'sm' }: Props) {
   const color = stage ? (STAGE_COLORS[stage] ?? '#10b981') : '#10b981';
 
   return (
@@ -20,4 +21,4 @@ export function ScoreBadge({ score, stage, size = 'sm' }: Props) {
       {formatScore(score)}
     </span>
   );
-}
+});

@@ -1,9 +1,9 @@
 'use client';
 
+import { memo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Activity, BarChart3, FlaskConical, Search, Code2, Menu, X } from 'lucide-react';
-import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
@@ -13,7 +13,7 @@ const NAV_ITEMS = [
   { href: '/api-docs', label: 'API', icon: Code2 },
 ];
 
-export function Navbar() {
+export const Navbar = memo(function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -82,4 +82,4 @@ export function Navbar() {
       )}
     </nav>
   );
-}
+});

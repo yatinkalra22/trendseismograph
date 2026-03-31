@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Code2, Copy, Check, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -78,11 +78,12 @@ const METHOD_COLORS: Record<string, string> = {
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(text);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+    const timer = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(timer);
+  }, [text]);
 
   return (
     <button onClick={handleCopy} className="text-text-secondary hover:text-text-primary transition-colors p-1">

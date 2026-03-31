@@ -1,5 +1,6 @@
 'use client';
 
+import { memo, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { format } from 'date-fns';
 
@@ -12,11 +13,15 @@ interface Props {
   data: DataPoint[];
 }
 
-export function TpsHistoryChart({ data }: Props) {
-  const formatted = data.map((d) => ({
-    date: format(new Date(d.scoredAt), 'MMM d'),
-    score: Number(d.tippingPointScore),
-  }));
+export const TpsHistoryChart = memo(function TpsHistoryChart({ data }: Props) {
+  const formatted = useMemo(
+    () =>
+      data.map((d) => ({
+        date: format(new Date(d.scoredAt), 'MMM d'),
+        score: Number(d.tippingPointScore),
+      })),
+    [data],
+  );
 
   return (
     <ResponsiveContainer width="100%" height={240}>
@@ -34,4 +39,4 @@ export function TpsHistoryChart({ data }: Props) {
       </LineChart>
     </ResponsiveContainer>
   );
-}
+});

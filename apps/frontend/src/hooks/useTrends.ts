@@ -23,7 +23,7 @@ export const useTrend = (slug: string) =>
   useQuery({ queryKey: ['trend', slug], queryFn: () => fetchTrend(slug), staleTime: 1000 * 60 * 10, enabled: !!slug });
 
 export const useTrendHistory = (slug: string, days = 90) =>
-  useQuery({ queryKey: ['trend-history', slug, days], queryFn: () => fetchTrendHistory(slug, days), enabled: !!slug });
+  useQuery({ queryKey: ['trend-history', slug, days], queryFn: () => fetchTrendHistory(slug, days), staleTime: 1000 * 60 * 10, enabled: !!slug });
 
 export const useTippingTrends = () =>
   useQuery({ queryKey: ['tipping'], queryFn: fetchTippingTrends, staleTime: 1000 * 60 * 5 });

@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Search, Bell, CheckCircle2, Loader2 } from 'lucide-react';
@@ -32,7 +32,7 @@ function ExploreContent() {
   const [alertError, setAlertError] = useState('');
   const [alertLoading, setAlertLoading] = useState(false);
 
-  const handleAlert = async (e: React.FormEvent) => {
+  const handleAlert = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setAlertError('');
     setAlertLoading(true);
@@ -48,7 +48,7 @@ function ExploreContent() {
     } finally {
       setAlertLoading(false);
     }
-  };
+  }, [alertEmail, alertTrend, alertScore]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">

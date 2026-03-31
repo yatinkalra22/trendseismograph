@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { STAGE_COLORS } from '@/lib/constants';
 
@@ -8,7 +9,7 @@ interface Props {
   stage: string;
 }
 
-export function TippingPointMeter({ score, stage }: Props) {
+export const TippingPointMeter = memo(function TippingPointMeter({ score, stage }: Props) {
   const pct = (score / 10) * 100;
   const color = STAGE_COLORS[stage] ?? '#10b981';
 
@@ -37,4 +38,4 @@ export function TippingPointMeter({ score, stage }: Props) {
       <p className="text-sm text-text-secondary font-mono">Tipping Point Score</p>
     </div>
   );
-}
+});

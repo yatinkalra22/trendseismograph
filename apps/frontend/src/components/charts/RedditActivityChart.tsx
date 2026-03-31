@@ -1,5 +1,6 @@
 'use client';
 
+import { memo, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 
@@ -12,11 +13,15 @@ interface Props {
   data: DataPoint[];
 }
 
-export function RedditActivityChart({ data }: Props) {
-  const formatted = data.map((d) => ({
-    date: format(new Date(d.scoredAt), 'MMM d'),
-    posts: d.redditPostCount ?? 0,
-  }));
+export const RedditActivityChart = memo(function RedditActivityChart({ data }: Props) {
+  const formatted = useMemo(
+    () =>
+      data.map((d) => ({
+        date: format(new Date(d.scoredAt), 'MMM d'),
+        posts: d.redditPostCount ?? 0,
+      })),
+    [data],
+  );
 
   return (
     <ResponsiveContainer width="100%" height={200}>
@@ -32,4 +37,4 @@ export function RedditActivityChart({ data }: Props) {
       </BarChart>
     </ResponsiveContainer>
   );
-}
+});

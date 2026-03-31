@@ -1,5 +1,6 @@
 'use client';
 
+import { memo, useMemo, useCallback } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 import { formatNumber } from '@/lib/utils';
@@ -13,11 +14,20 @@ interface Props {
   data: DataPoint[];
 }
 
-export function WikipediaChart({ data }: Props) {
-  const formatted = data.map((d) => ({
-    date: format(new Date(d.scoredAt), 'MMM d'),
-    views: d.wikipediaPageviews ?? 0,
-  }));
+export const WikipediaChart = memo(function WikipediaChart({ data }: Props) {
+  const formatted = useMemo(
+    () =>
+      data.map((d) => ({
+        date: format(new Date(d.scoredAt), 'MMM d'),
+        views: d.wikipediaPageviews ?? 0,
+      })),
+    [data],
+  );
+
+  const tooltipFormatter = useCallback(
+    (v: number) => [formatNumber(v), 'Pageviews'],
+    [],
+  );
 
   return (
     <ResponsiveContainer width="100%" height={200}>
@@ -28,10 +38,10 @@ export function WikipediaChart({ data }: Props) {
         <Tooltip
           contentStyle={{ backgroundColor: '#111', border: '1px solid #222', borderRadius: 8 }}
           labelStyle={{ color: '#888' }}
-          formatter={(v: number) => [formatNumber(v), 'Pageviews']}
+          formatter={tooltipFormatter}
         />
         <Area type="monotone" dataKey="views" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.1} strokeWidth={2} />
       </AreaChart>
     </ResponsiveContainer>
   );
-}
+});
