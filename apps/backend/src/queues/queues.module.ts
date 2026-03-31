@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { IngestionProcessor } from './ingestion.processor';
 import { ScoringProcessor } from './scoring.processor';
 import { AlertsProcessor } from './alerts.processor';
+import { IngestionScheduler } from './ingestion.scheduler';
 import { Trend } from '../modules/trends/entities/trend.entity';
 import { TrendScore } from '../modules/trends/entities/trend-score.entity';
 import { Alert } from '../modules/alerts/entities/alert.entity';
@@ -23,6 +24,6 @@ import { AlertsModule } from '../modules/alerts/alerts.module';
     ScoringModule,
     AlertsModule,
   ],
-  providers: [IngestionProcessor, ScoringProcessor, AlertsProcessor],
+  providers: [IngestionProcessor, ScoringProcessor, AlertsProcessor, IngestionScheduler],
 })
 export class QueuesModule {}
