@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -11,26 +11,44 @@ import { AlertsModule } from './modules/alerts/alerts.module';
 import { BacktestModule } from './modules/backtest/backtest.module';
 import { QueuesModule } from './queues/queues.module';
 import { HealthController } from './health.controller';
+import { validateEnv } from './config/env.validation';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      url: process.env.DATABASE_URL,
-      autoLoadEntities: true,
-      synchronize: false,
-      migrationsRun: true,
-      migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
+    ConfigModule.forRoot({
+      isGlobal: true,
+      cache: true,
+      validate: validateEnv,
     }),
-    RedisModule.forRoot({
-      type: 'single',
-      url: process.env.REDIS_URL || 'redis://localhost:6379',
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'postgres' as const,
+        url: config.getOrThrow<string>('DATABASE_URL'),
+        autoLoadEntities: true,
+        synchronize: false,
+        migrationsRun: true,
+        migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
+      }),
     }),
-    BullModule.forRoot({
-      redis: {
-        host: new URL(process.env.REDIS_URL || 'redis://localhost:6379').hostname,
-        port: parseInt(new URL(process.env.REDIS_URL || 'redis://localhost:6379').port || '6379'),
+    RedisModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'single' as const,
+        url: config.getOrThrow<string>('REDIS_URL'),
+      }),
+    }),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        const redisUrl = config.getOrThrow<string>('REDIS_URL');
+        const parsed = new URL(redisUrl);
+        return {
+          redis: {
+            host: parsed.hostname,
+            port: parseInt(parsed.port || '6379', 10),
+          },
+        };
       },
     }),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),

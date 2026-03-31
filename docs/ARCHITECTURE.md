@@ -30,6 +30,13 @@ Python NLP Service (FastAPI) :8000 (internal only, not host-exposed)
 - PostgreSQL: structured trend data, time-series scores, back-test results (password required)
 - Redis: caching (TTL-based) + Bull job queue management (password required)
 
+## Configuration Architecture
+- Centralized config bootstrap through `ConfigModule` with global cache enabled
+- Startup-time environment validation (`src/config/env.validation.ts`) for required variables
+- Async infrastructure wiring via `ConfigService` for TypeORM, Redis, and Bull
+- Runtime configuration access via dependency injection (instead of direct `process.env` reads)
+- Fail-fast startup behavior when critical environment variables are missing
+
 ## Key Tables
 - `trends` - tracked trends with metadata
 - `trend_scores` - daily score snapshots (time-series)
@@ -42,6 +49,9 @@ Python NLP Service (FastAPI) :8000 (internal only, not host-exposed)
 2. `nlp-scoring` -> classify + compute TPS
 3. `alerts-check` -> trigger email alerts
 
+Queue scheduler:
+- Repeatable Bull job registered at app startup for `ingest-all` every 6 hours
+
 ## Security Model
 - **Request logging** via global `LoggingInterceptor` (method, path, status, latency)
 - **Helmet** sets security headers (X-Content-Type-Options, Strict-Transport-Security, X-Frame-Options, etc.)
@@ -52,6 +62,7 @@ Python NLP Service (FastAPI) :8000 (internal only, not host-exposed)
 - **Service-to-service auth** via `X-Service-Key` header between backend and NLP service
 - **NLP service** not exposed to host network (Docker internal only)
 - **CORS** restricted to `FRONTEND_URL`
+- **Environment hardening** via validated required env vars before app boot
 
 ## TPS Formula
 ```
