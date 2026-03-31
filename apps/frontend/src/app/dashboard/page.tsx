@@ -8,6 +8,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { TrendCard } from '@/components/trends/TrendCard';
 import { StageLabel } from '@/components/scoring/StageLabel';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { QueryErrorState } from '@/components/ui/QueryErrorState';
 import { CATEGORIES, CATEGORY_ICONS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
@@ -20,7 +21,7 @@ const STAGE_FILTERS = [
 ];
 
 export default function DashboardPage() {
-  const { data: leaderboard, isLoading } = useLeaderboard();
+  const { data: leaderboard, isLoading, isError, error, refetch } = useLeaderboard();
   const { selectedStage, selectedCategory, viewMode, setStage, setCategory, setViewMode } = useAppStore();
 
   const filtered = useMemo(() => {
@@ -88,6 +89,17 @@ export default function DashboardPage() {
             ))}
           </div>
         </motion.div>
+      )}
+
+      {isError && (
+        <QueryErrorState
+          error={error}
+          title="Unable to load trend leaderboard"
+          onRetry={() => {
+            void refetch();
+          }}
+          className="mb-6"
+        />
       )}
 
       {/* Filters */}

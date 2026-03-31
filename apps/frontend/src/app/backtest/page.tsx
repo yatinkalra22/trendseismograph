@@ -6,6 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { FlaskConical, CheckCircle2, XCircle, Clock, Target } from 'lucide-react';
 import { useBacktestAccuracy, useBacktestResults } from '@/hooks/useTrends';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { QueryErrorState } from '@/components/ui/QueryErrorState';
 import { cn } from '@/lib/utils';
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -19,8 +20,20 @@ const CATEGORY_COLORS: Record<string, string> = {
 type OutcomeFilter = 'all' | 'mainstream' | 'fizzled';
 
 export default function BacktestPage() {
-  const { data: accuracy, isLoading: loadingAccuracy } = useBacktestAccuracy();
-  const { data: results, isLoading: loadingResults } = useBacktestResults();
+  const {
+    data: accuracy,
+    isLoading: loadingAccuracy,
+    isError: isAccuracyError,
+    error: accuracyError,
+    refetch: refetchAccuracy,
+  } = useBacktestAccuracy();
+  const {
+    data: results,
+    isLoading: loadingResults,
+    isError: isResultsError,
+    error: resultsError,
+    refetch: refetchResults,
+  } = useBacktestResults();
   const [filter, setFilter] = useState<OutcomeFilter>('all');
 
   const filtered = useMemo(() => {
@@ -31,6 +44,18 @@ export default function BacktestPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      {(isAccuracyError || isResultsError) && (
+        <QueryErrorState
+          error={accuracyError ?? resultsError}
+          title="Unable to load backtest data"
+          onRetry={() => {
+            void refetchAccuracy();
+            void refetchResults();
+          }}
+          className="mb-8"
+        />
+      )}
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-2">

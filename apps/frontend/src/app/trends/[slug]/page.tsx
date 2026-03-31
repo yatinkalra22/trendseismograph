@@ -13,14 +13,26 @@ import { GoogleTrendsChart } from '@/components/charts/GoogleTrendsChart';
 import { RedditActivityChart } from '@/components/charts/RedditActivityChart';
 import { WikipediaChart } from '@/components/charts/WikipediaChart';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { QueryErrorState } from '@/components/ui/QueryErrorState';
 import { formatNumber } from '@/lib/utils';
 import { CATEGORY_ICONS } from '@/lib/constants';
 
 export default function TrendDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const { data: trend, isLoading } = useTrend(slug);
-  const { data: history } = useTrendHistory(slug);
+  const {
+    data: trend,
+    isLoading,
+    isError: isTrendError,
+    error: trendError,
+    refetch: refetchTrend,
+  } = useTrend(slug);
+  const {
+    data: history,
+    isError: isHistoryError,
+    error: historyError,
+    refetch: refetchHistory,
+  } = useTrendHistory(slug);
 
   if (isLoading) {
     return (
@@ -31,6 +43,20 @@ export default function TrendDetailPage() {
           <Skeleton className="h-56" />
           <Skeleton className="h-56" />
         </div>
+      </div>
+    );
+  }
+
+  if (isTrendError) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+        <QueryErrorState
+          error={trendError}
+          title="Unable to load trend details"
+          onRetry={() => {
+            void refetchTrend();
+          }}
+        />
       </div>
     );
   }
@@ -106,6 +132,17 @@ export default function TrendDetailPage() {
             </div>
           </div>
         </motion.div>
+      )}
+
+      {isHistoryError && (
+        <QueryErrorState
+          error={historyError}
+          title="Unable to load trend history"
+          onRetry={() => {
+            void refetchHistory();
+          }}
+          className="mb-8"
+        />
       )}
 
       {/* Charts Grid */}
