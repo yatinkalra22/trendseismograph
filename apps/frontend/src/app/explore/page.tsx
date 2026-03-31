@@ -135,7 +135,10 @@ function ExploreContent() {
           onChange={(e) => setQueryInput(e.target.value)}
           placeholder="Search trends... (e.g. pickleball, oat milk, solarpunk)"
           aria-label="Search trends"
-          className="w-full pl-12 pr-20 py-3 bg-surface border border-border rounded-xl text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-tipping/40 transition-colors"
+          className={cn(
+            'w-full pl-12 pr-20 py-3 bg-surface border rounded-xl text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-tipping/40 transition-colors',
+            isSearchUpdating ? 'border-tipping/30' : 'border-border',
+          )}
         />
         {isSearchUpdating && (
           <Loader2 className="absolute right-12 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary animate-spin" aria-hidden="true" />
@@ -146,6 +149,7 @@ function ExploreContent() {
             onClick={clearSearchInput}
             className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
             aria-label="Clear search"
+            title="Clear search (Esc)"
           >
             <X className="w-4 h-4" />
           </button>
