@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useCallback, useMemo } from 'react';
+import { Suspense, useState, useCallback, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Search, Bell, CheckCircle2, Loader2 } from 'lucide-react';
@@ -38,8 +38,21 @@ function ExploreContent() {
   const searchParams = useSearchParams();
   const alertSlug = searchParams.get('alert') ?? '';
 
-  const [query, setQuery] = useState('');
-  const { data: results, isLoading, isError, error, refetch } = useSearch(query);
+  const [queryInput, setQueryInput] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const normalizedQueryInput = useMemo(() => queryInput.trim(), [queryInput]);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setDebouncedQuery(normalizedQueryInput);
+    }, 300);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [normalizedQueryInput]);
+
+  const { data: results, isLoading, isError, error, refetch } = useSearch(debouncedQuery);
   const createAlertMutation = useCreateAlert();
 
   // Alert form state
@@ -82,27 +95,29 @@ function ExploreContent() {
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
         <input
           type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          value={queryInput}
+          onChange={(e) => setQueryInput(e.target.value)}
           placeholder="Search trends... (e.g. pickleball, oat milk, solarpunk)"
           aria-label="Search trends"
           className="w-full pl-12 pr-4 py-3 bg-surface border border-border rounded-xl text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-tipping/40 transition-colors"
         />
       </div>
 
-      {query.length === 1 && (
+      {normalizedQueryInput.length === 1 && (
         <p className="mb-6 text-xs text-text-secondary">Keep typing to search (minimum 2 characters).</p>
       )}
 
       {/* Search Results */}
-      {query.length > 1 && (
+      {normalizedQueryInput.length > 1 && (
         <div className="mb-10" aria-live="polite">
           <h2 className="text-sm font-semibold text-text-secondary mb-4">
-            {isLoading
+            {normalizedQueryInput !== debouncedQuery
+              ? `Searching for "${normalizedQueryInput}"...`
+              : isLoading
               ? 'Searching...'
               : isError
-                ? `Search failed for "${query}"`
-                : `${results?.length ?? 0} results for "${query}"`}
+                ? `Search failed for "${debouncedQuery}"`
+                : `${results?.length ?? 0} results for "${debouncedQuery}"`}
           </h2>
           {isError && (
             <QueryErrorState
