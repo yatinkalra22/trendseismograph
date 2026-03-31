@@ -44,12 +44,12 @@ export default function BacktestPage() {
 
       {/* Stats Cards */}
       {loadingAccuracy ? (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28" />)}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+          {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-28" />)}
         </div>
       ) : accuracy && (
         <motion.div
-          className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8"
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
         >
@@ -81,6 +81,50 @@ export default function BacktestPage() {
             </div>
             <div className="text-xs text-text-secondary mt-1">Total Trends Tested</div>
           </div>
+          <div className="bg-surface border border-border rounded-xl p-5 text-center">
+            <Target className="w-5 h-5 text-indigo-400 mx-auto mb-2" />
+            <div className="text-3xl sm:text-4xl font-mono font-bold text-indigo-400">
+              {((accuracy.outcomeMetrics?.precision ?? 0) * 100).toFixed(0)}%
+            </div>
+            <div className="text-xs text-text-secondary mt-1">Precision</div>
+          </div>
+          <div className="bg-surface border border-border rounded-xl p-5 text-center">
+            <Target className="w-5 h-5 text-cyan-400 mx-auto mb-2" />
+            <div className="text-3xl sm:text-4xl font-mono font-bold text-cyan-400">
+              {((accuracy.outcomeMetrics?.recall ?? 0) * 100).toFixed(0)}%
+            </div>
+            <div className="text-xs text-text-secondary mt-1">Recall</div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Statistical Depth */}
+      {accuracy && (
+        <motion.div
+          className="bg-surface border border-border rounded-xl p-4 sm:p-6 mb-8"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+        >
+          <h3 className="text-sm font-semibold text-text-secondary mb-4">Statistical Confidence</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="rounded-lg border border-border p-3">
+              <p className="text-text-secondary mb-1">95% CI (accuracy)</p>
+              <p className="font-mono text-text-primary">
+                {(accuracy.overallAccuracyCI95?.lower * 100 || 0).toFixed(1)}% - {(accuracy.overallAccuracyCI95?.upper * 100 || 0).toFixed(1)}%
+              </p>
+            </div>
+            <div className="rounded-lg border border-border p-3">
+              <p className="text-text-secondary mb-1">F1 Score</p>
+              <p className="font-mono text-text-primary">{((accuracy.outcomeMetrics?.f1 ?? 0) * 100).toFixed(1)}%</p>
+            </div>
+            <div className="rounded-lg border border-border p-3">
+              <p className="text-text-secondary mb-1">Weeks Early (P50/P90)</p>
+              <p className="font-mono text-text-primary">
+                {accuracy.weeksBeforePeakDistribution?.p50 ?? 0}w / {accuracy.weeksBeforePeakDistribution?.p90 ?? 0}w
+              </p>
+            </div>
+          </div>
         </motion.div>
       )}
 
@@ -110,6 +154,36 @@ export default function BacktestPage() {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+        </motion.div>
+      )}
+
+      {/* Confusion Matrix */}
+      {accuracy?.outcomeMetrics?.confusionMatrix && (
+        <motion.div
+          className="bg-surface border border-border rounded-xl p-4 sm:p-6 mb-8"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          <h3 className="text-sm font-semibold text-text-secondary mb-4">Mainstream Outcome Confusion Matrix</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+            <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
+              <p className="text-text-secondary">True Positive</p>
+              <p className="font-mono text-xl text-emerald-400">{accuracy.outcomeMetrics.confusionMatrix.truePositive}</p>
+            </div>
+            <div className="rounded-lg border border-rose-500/30 bg-rose-500/5 p-3">
+              <p className="text-text-secondary">False Positive</p>
+              <p className="font-mono text-xl text-rose-400">{accuracy.outcomeMetrics.confusionMatrix.falsePositive}</p>
+            </div>
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+              <p className="text-text-secondary">False Negative</p>
+              <p className="font-mono text-xl text-amber-400">{accuracy.outcomeMetrics.confusionMatrix.falseNegative}</p>
+            </div>
+            <div className="rounded-lg border border-sky-500/30 bg-sky-500/5 p-3">
+              <p className="text-text-secondary">True Negative</p>
+              <p className="font-mono text-xl text-sky-400">{accuracy.outcomeMetrics.confusionMatrix.trueNegative}</p>
+            </div>
+          </div>
         </motion.div>
       )}
 
