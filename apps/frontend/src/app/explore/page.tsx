@@ -3,7 +3,7 @@
 import { Suspense, useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Search, Bell, CheckCircle2, Loader2 } from 'lucide-react';
+import { Search, Bell, CheckCircle2, Loader2, X } from 'lucide-react';
 import { useCreateAlert, useSearch } from '@/hooks/useTrends';
 import { TrendCard } from '@/components/trends/TrendCard';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -93,6 +93,12 @@ function ExploreContent() {
   const parsedScore = useMemo(() => Number.parseFloat(alertScore), [alertScore]);
   const isScoreInvalid = Number.isNaN(parsedScore) || parsedScore < 0 || parsedScore > 10;
   const isAlertFormInvalid = !alertEmail.trim() || !alertTrend.trim() || isScoreInvalid;
+  const isSearchUpdating = normalizedQueryInput.length > 1 && (normalizedQueryInput !== debouncedQuery || isFetching);
+
+  const clearSearchInput = useCallback(() => {
+    setQueryInput('');
+    searchInputRef.current?.focus();
+  }, []);
 
   const handleAlert = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -129,8 +135,21 @@ function ExploreContent() {
           onChange={(e) => setQueryInput(e.target.value)}
           placeholder="Search trends... (e.g. pickleball, oat milk, solarpunk)"
           aria-label="Search trends"
-          className="w-full pl-12 pr-4 py-3 bg-surface border border-border rounded-xl text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-tipping/40 transition-colors"
+          className="w-full pl-12 pr-20 py-3 bg-surface border border-border rounded-xl text-text-primary placeholder:text-text-secondary/50 focus:outline-none focus:border-tipping/40 transition-colors"
         />
+        {isSearchUpdating && (
+          <Loader2 className="absolute right-12 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary animate-spin" aria-hidden="true" />
+        )}
+        {queryInput.length > 0 && (
+          <button
+            type="button"
+            onClick={clearSearchInput}
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
+            aria-label="Clear search"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
       <p className="mb-3 text-xs text-text-secondary">Tip: press / to focus search, Esc to clear.</p>
 
