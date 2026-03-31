@@ -1,6 +1,7 @@
+import logging
+from statistics import mean
+from typing import Any, Iterable
 from transformers import pipeline
-from typing import List
-import numpy as np
 
 CANDIDATE_LABELS = [
     "discovering a new trend for the first time",
@@ -21,22 +22,61 @@ LABEL_TO_STAGE = {
 
 class DiscourseClassifier:
     def __init__(self):
-        print("Loading facebook/bart-large-mnli...")
-        self.zero_shot = pipeline(
-            "zero-shot-classification",
-            model="facebook/bart-large-mnli",
-            device=-1,
-        )
-        self.sentiment = pipeline(
-            "sentiment-analysis",
-            model="distilbert-base-uncased-finetuned-sst-2-english",
-            device=-1,
-        )
-        self.is_loaded = True
-        print("Models loaded successfully.")
+        self.logger = logging.getLogger("nlp-service")
+        self.zero_shot = None
+        self.sentiment = None
+        self.max_posts = 20
+        self.max_chars = 512
+        self.is_loaded = False
+
+        try:
+            self.logger.info("Loading NLP models...")
+            self.zero_shot = pipeline(
+                "zero-shot-classification",
+                model="facebook/bart-large-mnli",
+                device=-1,
+            )
+            self.sentiment = pipeline(
+                "sentiment-analysis",
+                model="distilbert-base-uncased-finetuned-sst-2-english",
+                device=-1,
+            )
+            self.is_loaded = True
+            self.logger.info("NLP models loaded successfully")
+        except Exception:
+            self.logger.exception("Failed to load NLP models")
+
+    def _normalize_posts(self, posts: Iterable[Any]) -> list[dict[str, str]]:
+        normalized = []
+        for post in list(posts)[: self.max_posts]:
+            title = getattr(post, "title", None)
+            body = getattr(post, "body", None)
+
+            if isinstance(post, dict):
+                title = post.get("title", title)
+                body = post.get("body", body)
+
+            text = f"{title or ''} {body or ''}".strip()[: self.max_chars]
+            if not text:
+                continue
+
+            normalized.append({"title": str(title or ""), "text": text})
+        return normalized
 
     def classify(self, trend_slug: str, posts: list) -> dict:
+        if not self.is_loaded or self.zero_shot is None or self.sentiment is None:
+            raise RuntimeError("NLP models are not loaded")
+
         if not posts:
+            return {
+                "discourse_stage": "discovery",
+                "stage_confidence": 0.5,
+                "sentiment_score": 0.0,
+                "labeled_posts": [],
+            }
+
+        normalized_posts = self._normalize_posts(posts)
+        if not normalized_posts:
             return {
                 "discourse_stage": "discovery",
                 "stage_confidence": 0.5,
@@ -48,22 +88,31 @@ class DiscourseClassifier:
         stage_votes = {stage: 0.0 for stage in LABEL_TO_STAGE.values()}
         sentiment_scores = []
 
-        for post in posts[:20]:
-            text = f"{post.title} {post.body or ''}"[:512]
+        texts = [post["text"] for post in normalized_posts]
 
-            result = self.zero_shot(text, CANDIDATE_LABELS, multi_label=False)
+        # Batch inference significantly reduces per-request overhead.
+        z_results = self.zero_shot(texts, CANDIDATE_LABELS, multi_label=False)
+        if isinstance(z_results, dict):
+            z_results = [z_results]
+
+        s_results = self.sentiment(texts)
+        if isinstance(s_results, dict):
+            s_results = [s_results]
+
+        for idx, post in enumerate(normalized_posts):
+            result = z_results[idx]
             top_label = result["labels"][0]
             confidence = result["scores"][0]
             stage = LABEL_TO_STAGE[top_label]
 
             stage_votes[stage] += confidence
 
-            sent = self.sentiment(text[:512])[0]
+            sent = s_results[idx]
             sent_score = sent["score"] if sent["label"] == "POSITIVE" else -sent["score"]
             sentiment_scores.append(sent_score)
 
             labeled_posts.append(
-                {"title": post.title, "label": stage, "confidence": round(confidence, 3)}
+                {"title": post["title"], "label": stage, "confidence": round(confidence, 3)}
             )
 
         dominant_stage = max(stage_votes, key=stage_votes.get)
@@ -72,7 +121,7 @@ class DiscourseClassifier:
             stage_votes[dominant_stage] / total_votes if total_votes > 0 else 0.5
         )
 
-        avg_sentiment = float(np.mean(sentiment_scores)) if sentiment_scores else 0.0
+        avg_sentiment = float(mean(sentiment_scores)) if sentiment_scores else 0.0
 
         return {
             "discourse_stage": dominant_stage,

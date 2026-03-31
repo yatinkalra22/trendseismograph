@@ -19,10 +19,12 @@ class RedditFetcher:
             )
         else:
             self.reddit = None
+            logger.warning("Reddit credentials not configured; /reddit endpoints will return empty results")
 
     def fetch(self, slug: str) -> dict:
         """Search Reddit for posts about this trend."""
         posts = []
+        query = slug.replace("-", " ").strip()
 
         if not self.reddit:
             return {
@@ -35,7 +37,7 @@ class RedditFetcher:
 
         try:
             results = self.reddit.subreddit("all").search(
-                slug.replace("-", " "), sort="new", time_filter="month", limit=25
+                query, sort="new", time_filter="month", limit=25
             )
             for post in results:
                 posts.append(
@@ -48,8 +50,15 @@ class RedditFetcher:
                         "created_utc": post.created_utc,
                     }
                 )
-        except Exception as e:
+        except Exception:
             logger.exception("Reddit fetch error for %s", slug)
+            return {
+                "posts": [],
+                "post_count": 0,
+                "comment_density": 0,
+                "growth_rate": 0,
+                "error": "Reddit data fetch failed",
+            }
 
         post_count = len(posts)
         avg_comments = sum(p["num_comments"] for p in posts) / max(post_count, 1)
