@@ -7,6 +7,10 @@ echo "=== TrendSeismograph Setup ==="
 command -v node >/dev/null 2>&1 || { echo "Node.js is required. Install from https://nodejs.org"; exit 1; }
 command -v pnpm >/dev/null 2>&1 || { echo "Installing pnpm..."; npm install -g pnpm; }
 command -v docker >/dev/null 2>&1 || { echo "Docker is required. Install from https://docker.com"; exit 1; }
+if ! command -v docker-compose >/dev/null 2>&1 && ! docker compose version >/dev/null 2>&1; then
+  echo "Docker Compose is required (docker compose or docker-compose)."
+  exit 1
+fi
 
 # Create .env from example if it doesn't exist
 if [ ! -f .env ]; then
@@ -24,6 +28,6 @@ echo ""
 echo "=== Setup complete ==="
 echo "Next steps:"
 echo "  1. Edit .env with your Reddit API + Resend credentials"
-echo "  2. Run: docker-compose up --build"
+echo "  2. Run: docker compose up --build"
 echo "  3. Run: ./scripts/seed.sh"
 echo "  4. Open http://localhost:3000"

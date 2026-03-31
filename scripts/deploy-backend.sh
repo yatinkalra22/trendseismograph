@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "${ROOT_DIR}"
+
 echo "=== Deploying TrendSeismograph Backend to Railway ==="
 
 command -v railway >/dev/null 2>&1 || { echo "Installing Railway CLI..."; npm install -g @railway/cli; }
@@ -14,9 +17,11 @@ if [ ! -f .railway/config.json ]; then
   railway init
 fi
 
+cd apps/backend
+
 # Deploy
 echo "Deploying..."
-railway up --detach
+railway up --detach --ci
 
 echo ""
 echo "=== Backend deployed ==="

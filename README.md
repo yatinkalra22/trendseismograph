@@ -32,7 +32,7 @@ cd trendseismograph
 ./scripts/setup.sh
 
 # 2. Start all services
-docker-compose up --build
+docker compose up --build
 
 # 3. Seed data
 ./scripts/seed.sh
@@ -78,7 +78,7 @@ All operations are automated — no manual steps required:
 | `./scripts/deploy-nlp.sh` | Deploy NLP service to Railway |
 | `./scripts/dev.sh` | Start Postgres + Redis for local dev |
 | `pnpm dev` | Start frontend + backend in dev mode |
-| `docker-compose up --build` | Start full stack with Docker |
+| `docker compose up --build` | Start full stack with Docker |
 
 ## Environment Variables
 

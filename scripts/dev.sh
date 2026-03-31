@@ -1,16 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if command -v docker-compose >/dev/null 2>&1; then
+	DOCKER_COMPOSE="docker-compose"
+elif docker compose version >/dev/null 2>&1; then
+	DOCKER_COMPOSE="docker compose"
+else
+	echo "Docker Compose is required (docker compose or docker-compose)."
+	exit 1
+fi
+
+: "${REDIS_PASSWORD:?REDIS_PASSWORD must be set (export or .env)}"
+
 echo "=== Starting TrendSeismograph Dev Environment ==="
 
 # Start infra (postgres + redis) in background
 echo "Starting PostgreSQL and Redis..."
-docker-compose up -d postgres redis
+${DOCKER_COMPOSE} up -d postgres redis
 
 # Wait for healthy
 echo "Waiting for services..."
-until docker-compose exec -T postgres pg_isready -U postgres >/dev/null 2>&1; do sleep 1; done
-until docker-compose exec -T redis redis-cli ping >/dev/null 2>&1; do sleep 1; done
+until ${DOCKER_COMPOSE} exec -T postgres pg_isready -U postgres >/dev/null 2>&1; do sleep 1; done
+until ${DOCKER_COMPOSE} exec -T redis redis-cli -a "${REDIS_PASSWORD}" ping >/dev/null 2>&1; do sleep 1; done
 echo "Infrastructure ready."
 
 echo ""
