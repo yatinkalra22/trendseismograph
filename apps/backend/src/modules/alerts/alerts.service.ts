@@ -45,6 +45,7 @@ export class AlertsService {
   async getTriggeredAlerts(trendId: string, tps: number, stage: string) {
     return this.alertRepo.find({
       where: { trendId, isActive: true },
+      relations: ['trend'],
     }).then((alerts) =>
       alerts.filter(
         (a) =>
@@ -52,5 +53,9 @@ export class AlertsService {
           (a.triggerScore && tps >= Number(a.triggerScore)),
       ),
     );
+  }
+
+  async deactivateAlert(id: string) {
+    await this.alertRepo.update({ id }, { isActive: false });
   }
 }
