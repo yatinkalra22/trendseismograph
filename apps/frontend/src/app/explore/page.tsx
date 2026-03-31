@@ -107,8 +107,8 @@ function ExploreContent() {
     }
     try {
       await createAlertMutation.mutateAsync({
-        email: alertEmail,
-        slug: alertTrend,
+        email: alertEmail.trim(),
+        slug: alertTrend.trim().toLowerCase(),
         triggerScore: parsedScore,
       });
       setAlertSent(true);
@@ -118,7 +118,7 @@ function ExploreContent() {
   }, [alertEmail, alertTrend, parsedScore, isScoreInvalid, createAlertMutation]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10" aria-busy={isLoading}>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10" aria-busy={isLoading || isFetching}>
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold mb-2">Explore Trends</h1>
@@ -133,6 +133,11 @@ function ExploreContent() {
           type="text"
           value={queryInput}
           onChange={(e) => setQueryInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              setDebouncedQuery(normalizedQueryInput);
+            }
+          }}
           placeholder="Search trends... (e.g. pickleball, oat milk, solarpunk)"
           aria-label="Search trends"
           className={cn(
@@ -214,7 +219,16 @@ function ExploreContent() {
             </div>
           )}
           {results && results.length === 0 && !isLoading && !isError && (
-            <p className="text-text-secondary text-sm">No trends found matching your search.</p>
+            <div className="text-text-secondary text-sm">
+              <p>No trends found matching your search.</p>
+              <button
+                type="button"
+                onClick={clearSearchInput}
+                className="mt-2 text-tipping hover:underline"
+              >
+                Clear search and try again
+              </button>
+            </div>
           )}
         </div>
       )}
