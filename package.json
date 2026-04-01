@@ -14,7 +14,14 @@
     "docker:down": "docker-compose down",
     "docker:reset": "docker-compose down -v && docker-compose up --build",
     "seed": "docker-compose exec backend pnpm seed",
-    "lint": "pnpm -r run lint"
+    "lint": "pnpm -r run lint",
+    "docs:lint": "markdownlint-cli2 \"README.md\" \"CONTRIBUTING.md\" \"docs/**/*.md\"",
+    "docs:links": "for f in README.md CONTRIBUTING.md docs/*.md; do markdown-link-check --quiet --config .markdown-link-check.json \"$f\" || exit 1; done",
+    "docs:check": "pnpm run docs:lint && pnpm run docs:links"
+  },
+  "devDependencies": {
+    "markdown-link-check": "^3.14.2",
+    "markdownlint-cli2": "^0.14.0"
   },
   "engines": {
     "node": ">=20.0.0",

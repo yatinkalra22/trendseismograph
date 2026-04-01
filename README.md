@@ -30,6 +30,8 @@ TrendSeismograph analyzes *how people talk about a trend*, not just search volum
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md): prerequisites, local and production deployment flow, and environment variable ownership.
 - [CONTRIBUTING.md](CONTRIBUTING.md): development workflow, pull request expectations, and documentation standards.
 - [docs/TESTING.md](docs/TESTING.md): canonical test commands and current test scope.
+- [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md): common setup and runtime failures with practical fixes.
+- [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md): pre-release quality, deployment, and rollback checks.
 
 ## Quick Start
 

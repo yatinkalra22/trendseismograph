@@ -1,0 +1,11 @@
+{
+  "ignorePatterns": [
+    {
+      "pattern": "^https://github.com/yourusername/trendseismograph$"
+    },
+    {
+      "pattern": "^http://localhost(:[0-9]+)?(/.*)?$"
+    }
+  ],
+  "replacementPatterns": []
+}

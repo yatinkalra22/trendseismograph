@@ -144,3 +144,6 @@ cp .env.example .env
 - Backend health: `GET /health`
 - Backend-to-NLP connectivity: `GET /health/nlp`
 - Swagger: available only when `NODE_ENV` is not `production`
+
+For common failures and fixes, see [TROUBLESHOOTING.md](./TROUBLESHOOTING.md).
+For release readiness checks, see [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md).
