@@ -50,11 +50,11 @@ Run the setup script. This will:
 Open the newly created `.env` file and fill in your secrets. **For a step-by-step guide on how to get your Reddit and Resend keys, see [docs/ENV_GUIDE.md](docs/ENV_GUIDE.md).**
 
 ### 3. Verify and Start
-Once your `.env` is ready, start the infrastructure and verify connectivity:
+Once your `.env` is ready, start the **infrastructure only** (Postgres & Redis) and verify connectivity:
 
 ```bash
-# Start Docker (Postgres & Redis)
-docker compose up -d
+# Start only the databases (Postgres & Redis)
+pnpm dev:infra
 
 # Verify connections and environment config
 ./scripts/check-env.sh
@@ -63,11 +63,17 @@ docker compose up -d
 ./scripts/seed.sh
 ```
 
-### 4. Open
-- Frontend:  http://localhost:3000
-- API:       http://localhost:3001
-- Swagger:   http://localhost:3001/api/docs
-- NLP:       http://localhost:8000/docs
+### 4. Run Development Services
+Now start the Backend, Frontend, and NLP service in a single terminal:
+
+```bash
+pnpm dev
+```
+
+- **Frontend:** http://localhost:3000
+- **API:**      http://localhost:3001
+- **Swagger:**  http://localhost:3001/api/docs
+- **NLP:**      http://localhost:8000/docs
 
 For production deployment and complete environment configuration, use [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 

@@ -4,9 +4,11 @@
   "private": true,
   "description": "Cultural tipping point detection engine",
   "scripts": {
-    "dev": "pnpm --parallel -r run dev",
+    "dev": "concurrently -n \"BACKEND,FRONTEND,NLP\" -c \"cyan,magenta,yellow\" \"pnpm dev:backend\" \"pnpm dev:frontend\" \"pnpm dev:nlp\"",
+    "dev:infra": "./scripts/dev.sh",
     "dev:backend": "pnpm --filter @trendseismograph/backend run start:dev",
     "dev:frontend": "pnpm --filter @trendseismograph/frontend run dev",
+    "dev:nlp": "cd services/nlp && uvicorn main:app --reload --port 8000",
     "build": "pnpm -r run build",
     "build:backend": "pnpm --filter @trendseismograph/backend run build",
     "build:frontend": "pnpm --filter @trendseismograph/frontend run build",
@@ -20,6 +22,7 @@
     "docs:check": "pnpm run docs:lint && pnpm run docs:links"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "markdown-link-check": "^3.14.2",
     "markdownlint-cli2": "^0.14.0"
   },

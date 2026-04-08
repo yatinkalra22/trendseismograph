@@ -10,7 +10,12 @@ else
 	exit 1
 fi
 
-: "${REDIS_PASSWORD:?REDIS_PASSWORD must be set (export or .env)}"
+if [ -f .env ]; then
+  # Load .env variables, ignoring comments
+  export $(grep -v '^#' .env | xargs)
+fi
+
+: "${REDIS_PASSWORD:?REDIS_PASSWORD must be set (run ./scripts/setup.sh to create .env)}"
 
 echo "=== Starting TrendSeismograph Dev Environment ==="
 
