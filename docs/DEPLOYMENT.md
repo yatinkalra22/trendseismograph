@@ -95,7 +95,7 @@ pnpm --filter @trendseismograph/backend run migration:run
 
 ## Environment Variables
 
-Copy `.env.example` to `.env` and update values.
+Copy `.env.example` to `.env` and update values. For detailed instructions on how to obtain these keys, see [ENV_GUIDE.md](./ENV_GUIDE.md).
 
 ```bash
 cp .env.example .env

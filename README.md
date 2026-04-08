@@ -26,6 +26,7 @@ TrendSeismograph analyzes *how people talk about a trend*, not just search volum
 ## Documentation Map
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): system design, module boundaries, queue pipeline, security model, and TPS formula.
+- [docs/ENV_GUIDE.md](docs/ENV_GUIDE.md): step-by-step instructions for obtaining Reddit, Resend, and database keys.
 - [docs/API.md](docs/API.md): API endpoints, authentication rules, and Swagger usage in development.
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md): prerequisites, local and production deployment flow, and environment variable ownership.
 - [CONTRIBUTING.md](CONTRIBUTING.md): development workflow, pull request expectations, and documentation standards.
@@ -35,24 +36,38 @@ TrendSeismograph analyzes *how people talk about a trend*, not just search volum
 
 ## Quick Start
 
+### 1. Bootstrap
+Run the setup script. This will:
+- Check for required tools (Node, pnpm, Docker).
+- Create your `.env` file from the example.
+- Install all project dependencies (pnpm install).
+
 ```bash
-# 1. Clone and bootstrap
-git clone https://github.com/yourusername/trendseismograph
-cd trendseismograph
 ./scripts/setup.sh
-
-# 2. Start local stack
-docker compose up --build
-
-# 3. Seed data
-./scripts/seed.sh
-
-# 4. Open
-# Frontend:  http://localhost:3000
-# API:       http://localhost:3001
-# Swagger:   http://localhost:3001/api/docs
-# NLP:       http://localhost:8000/docs
 ```
+
+### 2. Configure Environment
+Open the newly created `.env` file and fill in your secrets. **For a step-by-step guide on how to get your Reddit and Resend keys, see [docs/ENV_GUIDE.md](docs/ENV_GUIDE.md).**
+
+### 3. Verify and Start
+Once your `.env` is ready, start the infrastructure and verify connectivity:
+
+```bash
+# Start Docker (Postgres & Redis)
+docker compose up -d
+
+# Verify connections and environment config
+./scripts/check-env.sh
+
+# Seed initial trend data
+./scripts/seed.sh
+```
+
+### 4. Open
+- Frontend:  http://localhost:3000
+- API:       http://localhost:3001
+- Swagger:   http://localhost:3001/api/docs
+- NLP:       http://localhost:8000/docs
 
 For production deployment and complete environment configuration, use [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
