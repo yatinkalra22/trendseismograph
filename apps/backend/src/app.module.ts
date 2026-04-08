@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bull';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { RedisModule } from '@nestjs-modules/ioredis';
+import { join } from 'path';
 import { TrendsModule } from './modules/trends/trends.module';
 import { ScoringModule } from './modules/scoring/scoring.module';
 import { IngestionModule } from './modules/ingestion/ingestion.module';
@@ -22,6 +23,7 @@ import alertsConfig from './modules/alerts/alerts.config';
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
+      envFilePath: [join(process.cwd(), '.env'), join(process.cwd(), '../../.env')],
       load: [appConfig, securityConfig, ingestionConfig, alertsConfig],
       validate: validateEnv,
     }),
@@ -48,10 +50,14 @@ import alertsConfig from './modules/alerts/alerts.config';
       useFactory: (config: ConfigService) => {
         const redisUrl = config.getOrThrow<string>('REDIS_URL');
         const parsed = new URL(redisUrl);
+        const password = parsed.password ? decodeURIComponent(parsed.password) : undefined;
+        const username = parsed.username ? decodeURIComponent(parsed.username) : undefined;
         return {
           redis: {
             host: parsed.hostname,
             port: parseInt(parsed.port || '6379', 10),
+            password,
+            username,
           },
         };
       },
