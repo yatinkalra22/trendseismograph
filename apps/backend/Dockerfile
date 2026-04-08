@@ -1,21 +1,19 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
-# Set CI=true to prevent pnpm from failing on TTY/confirmation prompts
-ENV CI=true
 RUN npm install -g pnpm
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/backend/package.json ./apps/backend/
-RUN pnpm install --frozen-lockfile
 COPY . .
+RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @trendseismograph/backend build
-RUN pnpm prune --prod --no-optional
+# deploy extracts the package and its production dependencies to a standalone folder
+RUN pnpm --filter @trendseismograph/backend --prod deploy /pruned
 
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=builder /app/apps/backend/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/apps/backend/package.json ./
+# Copy only the extracted production-ready package
+COPY --from=builder /pruned/dist ./dist
+COPY --from=builder /pruned/node_modules ./node_modules
+COPY --from=builder /pruned/package.json ./
 EXPOSE 3001
 USER node
 CMD ["node", "dist/main"]
