@@ -42,7 +42,7 @@ services:
       - REDDIT_CLIENT_ID=${REDDIT_CLIENT_ID}
       - REDDIT_CLIENT_SECRET=${REDDIT_CLIENT_SECRET}
       - REDDIT_USER_AGENT=${REDDIT_USER_AGENT}
-      - NLP_SERVICE_SECRET=${NLP_SERVICE_SECRET:-nlp-dev-secret}
+      - NLP_SERVICE_SECRET=${NLP_SERVICE_SECRET:?NLP_SERVICE_SECRET must be set}
     volumes:
       - huggingface_cache:/root/.cache/huggingface
     healthcheck:
@@ -64,7 +64,7 @@ services:
     environment:
       - NODE_ENV=production
       - NLP_SERVICE_URL=http://nlp-service:8000
-      - NLP_SERVICE_SECRET=${NLP_SERVICE_SECRET:-nlp-dev-secret}
+      - NLP_SERVICE_SECRET=${NLP_SERVICE_SECRET:?NLP_SERVICE_SECRET must be set}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@postgres:5432/${POSTGRES_DB:-trendseismograph}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD must be set}@redis:6379
     depends_on:
