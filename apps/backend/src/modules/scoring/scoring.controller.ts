@@ -51,7 +51,7 @@ export class ScoringController {
         scoredAt: s.scoredAt,
       }))
       .sort((a, b) => b.tippingPointScore - a.tippingPointScore)
-      .slice(0, 20);
+      .slice(0, 100);
 
     await setCachedJson(this.redis, 'leaderboard:tps', 1800, leaderboard, this.logger);
     return leaderboard;

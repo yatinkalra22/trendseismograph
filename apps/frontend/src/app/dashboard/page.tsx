@@ -17,6 +17,7 @@ const STAGE_FILTERS = [
   { value: null, label: 'All' },
   { value: 'discovery', label: 'Discovery' },
   { value: 'early_adoption', label: 'Early Adoption' },
+  { value: 'approaching_tipping', label: 'Approaching Tipping' },
   { value: 'tipping_point', label: 'Tipping Point' },
   { value: 'mainstream', label: 'Mainstream' },
 ];
@@ -108,9 +109,10 @@ export default function DashboardPage() {
       )}
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+      <div className="flex flex-col gap-3 mb-6">
         {/* Stage pills */}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs uppercase tracking-wide text-text-secondary mr-1 w-16 sm:w-20">Stage</span>
           {STAGE_FILTERS.map((f) => (
             <button
               key={f.label}
@@ -128,7 +130,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Category pills */}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs uppercase tracking-wide text-text-secondary mr-1 w-16 sm:w-20">Category</span>
           <button
             onClick={() => setCategory(null)}
             className={cn(
