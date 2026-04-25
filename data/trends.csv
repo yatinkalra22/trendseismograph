@@ -1,0 +1,48 @@
+slug,name,category,is_historical,actual_outcome
+pickleball,Pickleball,sports,true,mainstream
+oat-milk,Oat Milk,food,true,mainstream
+air-fryer,Air Fryer,food,true,mainstream
+sourdough-baking,Sourdough Baking,food,true,mainstream
+cold-plunge,Cold Plunge,wellness,true,mainstream
+van-life,Van Life,culture,true,mainstream
+mushroom-coffee,Mushroom Coffee,food,true,mainstream
+quiet-quitting,Quiet Quitting,culture,true,mainstream
+cottagecore,Cottagecore,culture,true,mainstream
+book-tok,BookTok,culture,true,mainstream
+dry-january,Dry January,wellness,true,mainstream
+hot-girl-walks,Hot Girl Walks,wellness,true,mainstream
+analog-photography,Analog Photography,culture,true,mainstream
+thrifting,Thrifting / Secondhand,culture,true,mainstream
+kombucha,Kombucha,food,true,mainstream
+birding,Birding / Birdwatching,culture,true,mainstream
+padel-tennis,Padel Tennis,sports,true,mainstream
+axe-throwing,Axe Throwing,sports,true,mainstream
+gut-health,Gut Health,wellness,true,mainstream
+olive-oil-coffee,Olive Oil Coffee,food,true,mainstream
+wordle,Wordle,tech,true,mainstream
+plant-based-meat,Plant-Based Meat,food,true,mainstream
+beekeeping,Urban Beekeeping,culture,true,mainstream
+normcore,Normcore Fashion,culture,true,mainstream
+depop-fashion,Depop / Resale Fashion,culture,true,mainstream
+raw-water,Raw Water,wellness,true,fizzled
+juicero,Juicero,tech,true,fizzled
+google-glass,Google Glass (consumer),tech,true,fizzled
+clubhouse-app,Clubhouse App,tech,true,fizzled
+nft-art,NFT Art,culture,true,fizzled
+quibi,Quibi Streaming,tech,true,fizzled
+metaverse-real-estate,Metaverse Real Estate,tech,true,fizzled
+dog-collar-cameras,Dog Collar Cameras,tech,true,fizzled
+fidget-spinners,Fidget Spinners,culture,true,fizzled
+supersonic-travel,Supersonic Commercial Travel,tech,true,fizzled
+google-plus,Google+,tech,true,fizzled
+lab-grown-fur,Lab-Grown Fur Fashion,culture,true,fizzled
+forest-bathing,Forest Bathing,wellness,false,pending
+longevity-science,Longevity Science,wellness,false,pending
+sleep-tourism,Sleep Tourism,culture,false,pending
+solarpunk,Solarpunk,culture,false,pending
+rewilding,Rewilding,culture,false,pending
+neurotech-consumer,Consumer Neurotech,tech,false,pending
+regenerative-travel,Regenerative Travel,culture,false,pending
+brown-noise,Brown Noise,wellness,false,pending
+ambient-computing,Ambient Computing,tech,false,pending
+biomimicry-fashion,Biomimicry Fashion,culture,false,pending
