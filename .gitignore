@@ -37,6 +37,8 @@ venv/
 # Internal docs (not committed)
 docs/PLAN.md
 docs/SECURITY_AUDIT.md
+docs/demo-script.md
+docs/devpost-summary.md
 WINNING-PLAN.md
 
 # OS
