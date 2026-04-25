@@ -2,7 +2,7 @@
 
 This guide explains how to obtain the keys and configuration values required for the `.env` file in the TrendSeismograph project.
 
-> **ZerveHack 2026 note.** Reddit API access was not granted for the hackathon submission, so Section 3 below is dormant for the Zerve project (the legacy NestJS service still uses it if configured). The active discourse signal is YouTube Data API v3; see [`zerve/cells/03_fetch_youtube.py`](../zerve/cells/03_fetch_youtube.py) for the `YOUTUBE_API_KEY` requirement.
+> **ZerveHack 2026 note.** Reddit API access was not granted for the hackathon submission, so Section 3 below is dormant for the Zerve project (the legacy NestJS service still reads those keys if configured). The active discourse signal is the YouTube Data API v3 — see Section 4 below for the setup. The Zerve cell that consumes it is [`zerve/cells/03_fetch_youtube.py`](../zerve/cells/03_fetch_youtube.py).
 
 ## 1. App & Security
 
@@ -59,7 +59,25 @@ Required for the NLP service to fetch recent discourse about trends.
 
 ---
 
-## 4. Email Alerts (`RESEND_API_KEY`)
+## 4. YouTube Data API v3 (`YOUTUBE_API_KEY`)
+
+Required for the **active** discourse signal in the ZerveHack 2026 submission. Cell `zerve/cells/03_fetch_youtube.py` calls `search.list` and `commentThreads.list` to pull videos and top comments per trend; downstream cells (06 classify, 07 sentiment, 08 TPS) all depend on its output. No approval queue — this is granted instantly once the API is enabled.
+
+1.  Go to [console.cloud.google.com](https://console.cloud.google.com) and sign in with a Google account.
+2.  Create or select a project (top-left dropdown). A throwaway project named e.g. `trendseismograph-hackathon` is fine.
+3.  Open **APIs & Services → Library**, search for **YouTube Data API v3**, click it, then click **Enable**.
+4.  Open **APIs & Services → Credentials**, click **+ Create credentials → API key**.
+5.  Copy the key (starts with `AIza...`).
+6.  **Restrict it (recommended).** Click the key in the credentials list:
+    - **Application restrictions:** None (or IP-restrict to your dev machine and your Zerve runtime egress IP if you can find it).
+    - **API restrictions:** Restrict to **YouTube Data API v3** only.
+7.  Paste it into `.env` as `YOUTUBE_API_KEY=AIza...` and into the Zerve project as a secret named `YOUTUBE_API_KEY` (Project Settings → Secrets / Environment Variables).
+
+**Quota.** Default daily quota is 10,000 units. `search.list` costs 100 units per call, `commentThreads.list` costs 1. The 47-trend ingestion budget is ~5,900 units in the worst case (see the docstring in cell 03). If you blow through quota during testing, request an increase from the Google Cloud Console or wait for the daily reset (midnight Pacific).
+
+---
+
+## 5. Email Alerts (`RESEND_API_KEY`)
 
 Required for sending email notifications when a trend crosses a score threshold.
 
@@ -72,7 +90,7 @@ Required for sending email notifications when a trend crosses a score threshold.
 
 ---
 
-## 5. Frontend & URLs
+## 6. Frontend & URLs
 
 ### `FRONTEND_URL`
 - **Local:** `http://localhost:3000`
@@ -89,8 +107,9 @@ Required for sending email notifications when a trend crosses a score threshold.
 | Key | Source | Required for... |
 | :--- | :--- | :--- |
 | `API_KEY_SECRET` | Manual Generation | Security (API) |
-| `REDDIT_CLIENT_ID` | Reddit Dev Portal | Ingestion (Reddit) |
-| `REDDIT_CLIENT_SECRET` | Reddit Dev Portal | Ingestion (Reddit) |
+| `YOUTUBE_API_KEY` | Google Cloud Console | Ingestion (YouTube) — **active in Zerve submission** |
+| `REDDIT_CLIENT_ID` | Reddit Dev Portal | Ingestion (Reddit) — dormant for hackathon |
+| `REDDIT_CLIENT_SECRET` | Reddit Dev Portal | Ingestion (Reddit) — dormant for hackathon |
 | `RESEND_API_KEY` | Resend Dashboard | Notifications (Email) |
 | `DATABASE_URL` | Self-hosted or Provider | Data Persistence |
 | `REDIS_URL` | Self-hosted or Provider | Caching / Queues |

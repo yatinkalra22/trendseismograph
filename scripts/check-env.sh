@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-set -eo pipefail
+# Connection checks run regardless of placeholder warnings, so we keep -e off
+# for the configuration-check section. pipefail is still useful for piped commands.
+set -o pipefail
 
 echo "=== Environment Variable & Connection Checker ==="
 
@@ -21,25 +23,46 @@ REDIS_PASS=$(get_env_val "REDIS_PASSWORD")
 REDDIT_ID=$(get_env_val "REDDIT_CLIENT_ID")
 REDDIT_SECRET=$(get_env_val "REDDIT_CLIENT_SECRET")
 RESEND_KEY=$(get_env_val "RESEND_API_KEY")
+YOUTUBE_KEY=$(get_env_val "YOUTUBE_API_KEY")
 
 echo "--- Configuration Check ---"
 
-# Check for placeholder values
-check_placeholder() {
+# Returns 0 if value is set and not a placeholder, 1 otherwise.
+is_configured() {
+  local val=$1
+  if [[ "$val" == *"your_"* ]] || [[ "$val" == *"change-me"* ]] || [[ -z "$val" ]]; then
+    return 1
+  fi
+  return 0
+}
+
+# Active variables the running stack actually depends on.
+check_required() {
   local val=$1
   local name=$2
-  if [[ "$val" == *"your_"* ]] || [[ "$val" == *"change-me"* ]] || [[ -z "$val" ]]; then
-    echo "⚠️  $name: NOT CONFIGURED (still uses placeholder or is empty)"
-    return 1
-  else
+  if is_configured "$val"; then
     echo "✅ $name: Configured"
-    return 0
+  else
+    echo "⚠️  $name: NOT CONFIGURED (still uses placeholder or is empty)"
   fi
 }
 
-check_placeholder "$REDDIT_ID" "Reddit Client ID"
-check_placeholder "$REDDIT_SECRET" "Reddit Client Secret"
-check_placeholder "$RESEND_KEY" "Resend API Key"
+# Variables that are intentionally dormant for the ZerveHack 2026 submission.
+# Surfaced as informational (ℹ️) so the script no longer exits early.
+check_dormant() {
+  local val=$1
+  local name=$2
+  if is_configured "$val"; then
+    echo "ℹ️  $name: Configured (legacy code path; not used by the Zerve submission)"
+  else
+    echo "ℹ️  $name: not set — expected. Reddit pipeline is dormant for the hackathon."
+  fi
+}
+
+check_required "$RESEND_KEY" "Resend API Key"
+check_required "$YOUTUBE_KEY" "YouTube API Key (active discourse signal in zerve/cells/03)"
+check_dormant  "$REDDIT_ID" "Reddit Client ID"
+check_dormant  "$REDDIT_SECRET" "Reddit Client Secret"
 
 echo ""
 echo "--- Connection Check ---"
