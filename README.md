@@ -4,6 +4,8 @@
 
 TrendSeismograph analyzes *how people talk about a trend*, not just search volume. Using a three-signal pipeline (Google Trends velocity, Reddit discourse NLP, and Wikipedia pageview acceleration), it identifies when a trend moves from niche to mainstream.
 
+> **ZerveHack 2026 note — Reddit pipeline is dormant.** Reddit API access was not granted for this hackathon, so the discourse signal in the active submission has been swapped to **YouTube Data API v3** (search + top comments) with **GDELT 2.0** as a secondary news-volume signal. The Reddit fetcher, scoring fields, and DB columns remain in this repo as reference for the original architecture, but they receive no live data. The hackathon submission lives in [`zerve/cells/`](zerve/cells/) and follows the roadmap in [`docs/winning-plan.md`](docs/winning-plan.md).
+
 ## Key Features
 
 - **Tipping Point Score (0-10):** A single actionable score that fuses all signals.
