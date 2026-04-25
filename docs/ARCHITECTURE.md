@@ -3,6 +3,8 @@
 See the main [README](../README.md) for a high-level overview.
 For setup, deployment, and environment configuration, use [DEPLOYMENT.md](./DEPLOYMENT.md).
 
+> **ZerveHack 2026 note.** This document describes the original NestJS + Next.js + FastAPI architecture, which is retained as reference. The hackathon submission re-implements the analytical core (ingestion, NLP, scoring, backtest) as a 13-block Zerve DAG under [`zerve/cells/`](../zerve/cells/). The TPS formula and weights below are unchanged; the Reddit term is sourced from YouTube + GDELT in the Zerve pipeline because Reddit API access was not granted.
+
 ## System Diagram
 ```
 Client (Next.js 14 on Vercel)

@@ -27,6 +27,7 @@ TrendSeismograph analyzes *how people talk about a trend*, not just search volum
 
 ## Documentation Map
 
+- [zerve/cells/](zerve/cells/): the 13-block Zerve project that is the actual ZerveHack 2026 submission (ingestion → NLP → scoring → backtest → API → app).
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): system design, module boundaries, queue pipeline, security model, and TPS formula.
 - [docs/ENV_GUIDE.md](docs/ENV_GUIDE.md): step-by-step instructions for obtaining Reddit, Resend, and database keys.
 - [docs/API.md](docs/API.md): API endpoints, authentication rules, and Swagger usage in development.

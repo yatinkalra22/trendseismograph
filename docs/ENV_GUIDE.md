@@ -2,6 +2,8 @@
 
 This guide explains how to obtain the keys and configuration values required for the `.env` file in the TrendSeismograph project.
 
+> **ZerveHack 2026 note.** Reddit API access was not granted for the hackathon submission, so Section 3 below is dormant for the Zerve project (the legacy NestJS service still uses it if configured). The active discourse signal is YouTube Data API v3; see [`zerve/cells/03_fetch_youtube.py`](../zerve/cells/03_fetch_youtube.py) for the `YOUTUBE_API_KEY` requirement.
+
 ## 1. App & Security
 
 ### `API_KEY_SECRET`
