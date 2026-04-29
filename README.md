@@ -103,9 +103,11 @@ Common commands:
 |--------|---------|
 | `./scripts/setup.sh` | Install dependencies + create .env |
 | `./scripts/seed.sh` | Seed 50+ historical trends |
+| `./scripts/deploy-all.sh` | Deploy NLP + Backend + Frontend + Zerve in one command |
 | `./scripts/deploy-backend.sh` | Deploy backend to Railway |
 | `./scripts/deploy-frontend.sh` | Deploy frontend to Vercel |
 | `./scripts/deploy-nlp.sh` | Deploy NLP service to Railway |
+| `./scripts/deploy-zerve.sh` | Smoke-test cells, push commit, sync to Zerve canvas |
 | `./scripts/dev.sh` | Start Postgres + Redis for local dev |
 | `pnpm dev` | Start frontend + backend in dev mode |
 | `docker compose up --build` | Start full stack with Docker |
