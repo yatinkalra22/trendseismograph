@@ -1,10 +1,12 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
-RUN npm install -g pnpm
+# Pin pnpm to match the workspace's local version (matches packageManager spec).
+RUN npm install -g pnpm@10
 COPY . .
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @trendseismograph/backend build
-# deploy extracts the package and its production dependencies to a standalone folder
+# deploy extracts the package and its production dependencies to a standalone folder.
+# Requires inject-workspace-packages=true (set in repo-root .npmrc).
 RUN pnpm --filter @trendseismograph/backend --prod deploy /pruned
 
 FROM node:20-alpine AS runner
