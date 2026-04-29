@@ -48,7 +48,7 @@ export const TrendCard = memo(
 
           <div className="mt-3 flex items-center gap-2 text-xs text-text-secondary">
             <span className={velocity >= 0 ? 'text-emerald-400' : 'text-red-400'}>
-              {velocitySign}{velocity.toFixed(1)}% this week
+              {velocitySign}{velocity.toFixed(1)}% velocity
             </span>
           </div>
         </div>

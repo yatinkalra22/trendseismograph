@@ -1,0 +1,23 @@
+# Dependencies for running zerve/cells/*.py locally via scripts/run_zerve_local.py.
+# On the Zerve hosted runtime these are listed per-cell in the Environment panel;
+# this file is a convenience for local execution only.
+
+# core data + http
+pandas>=2.1
+numpy>=1.26
+requests>=2.31
+
+# cell 02 — Google Trends
+pytrends>=4.9
+
+# cells 06, 07 — zero-shot classification + sentiment
+# (large download on first run: ~700 MB of model weights to ~/.cache/huggingface)
+transformers>=4.40
+torch>=2.2
+
+# cell 11 — figures
+matplotlib>=3.8
+
+# cell 13 — App (only needed if you launch the streamlit app locally)
+streamlit>=1.32
+altair>=5.2

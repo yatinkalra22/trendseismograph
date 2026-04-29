@@ -2,7 +2,7 @@
 
 import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, TrendingUp, MessageSquare, Globe, BookOpen } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Globe, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 import { useTrend, useTrendHistory } from '@/hooks/useTrends';
 import { TippingPointMeter } from '@/components/scoring/TippingPointMeter';
@@ -10,7 +10,6 @@ import { StageTimeline } from '@/components/scoring/StageTimeline';
 import { StageLabel } from '@/components/scoring/StageLabel';
 import { TpsHistoryChart } from '@/components/charts/TpsHistoryChart';
 import { GoogleTrendsChart } from '@/components/charts/GoogleTrendsChart';
-import { RedditActivityChart } from '@/components/charts/RedditActivityChart';
 import { WikipediaChart } from '@/components/charts/WikipediaChart';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { QueryErrorState } from '@/components/ui/QueryErrorState';
@@ -110,17 +109,12 @@ export default function TrendDetailPage() {
           </div>
           <StageTimeline currentStage={score.discourseStage} />
 
-          {/* Signal stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8">
+          {/* Signal stats — Reddit panel removed (Reddit pipeline dormant per ZerveHack pivot) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
             <div className="text-center p-3 rounded-lg bg-background border border-border">
               <TrendingUp className="w-4 h-4 text-discovery mx-auto mb-1" />
               <div className="font-mono font-bold text-lg">{score.googleTrendValue ?? 0}</div>
               <div className="text-xs text-text-secondary">Google Trends</div>
-            </div>
-            <div className="text-center p-3 rounded-lg bg-background border border-border">
-              <MessageSquare className="w-4 h-4 text-early mx-auto mb-1" />
-              <div className="font-mono font-bold text-lg">{formatNumber(score.redditPostCount ?? 0)}</div>
-              <div className="text-xs text-text-secondary">Reddit Posts</div>
             </div>
             <div className="text-center p-3 rounded-lg bg-background border border-border">
               <BookOpen className="w-4 h-4 text-mainstream mx-auto mb-1" />
@@ -183,16 +177,6 @@ export default function TrendDetailPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-          >
-            <h3 className="text-sm font-semibold text-text-secondary mb-4">Reddit Activity</h3>
-            <RedditActivityChart data={history} />
-          </motion.div>
-
-          <motion.div
-            className="bg-surface border border-border rounded-xl p-4 sm:p-6"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
           >
             <h3 className="text-sm font-semibold text-text-secondary mb-4">Wikipedia Pageviews</h3>
             <WikipediaChart data={history} />
